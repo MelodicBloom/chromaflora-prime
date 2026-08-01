@@ -1,0 +1,62 @@
+name: One-shot lockfile repair
+
+on:
+  push:
+    branches:
+      - automation/defensible-vertical-slice
+
+permissions:
+  contents: write
+
+concurrency:
+  group: one-shot-lockfile-repair
+  cancel-in-progress: false
+
+jobs:
+  regenerate-lockfile:
+    if: ${{ !contains(github.event.head_commit.message, '[lockfile-repair]') }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Check out repair branch
+        uses: actions/checkout@v4
+        with:
+          ref: automation/defensible-vertical-slice
+          fetch-depth: 0
+
+      - name: Use project Node version
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: npm
+
+      - name: Regenerate npm lockfile from package.json
+        run: |
+          set -euo pipefail
+          rm -rf node_modules package-lock.json
+          npm install --package-lock-only --ignore-scripts --no-audit --no-fund
+
+      - name: Validate lockfile and frozen install
+        run: |
+          set -euo pipefail
+          node - <<'NODE'
+          const fs = require('node:fs');
+          const lock = JSON.parse(fs.readFileSync('package-lock.json', 'utf8'));
+          const count = Object.keys(lock.packages || {}).length;
+          if (lock.lockfileVersion !== 3 || count < 2) {
+            throw new Error(`Invalid regenerated lockfile: lockfileVersion=${lock.lockfileVersion}, packages=${count}`);
+          }
+          console.log(`Validated lockfile with ${count} package entries.`);
+          NODE
+          npm ci --ignore-scripts --no-audit --no-fund
+          git diff --exit-code -- package.json
+
+      - name: Commit repaired lockfile and remove one-shot workflow
+        run: |
+          set -euo pipefail
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git rm .github/workflows/one-shot-lockfile-repair.yml
+          git add package-lock.json
+          git commit -m 'fix(deps): regenerate npm lockfile [lockfile-repair]'
+          git push origin HEAD:automation/defensible-vertical-slice
