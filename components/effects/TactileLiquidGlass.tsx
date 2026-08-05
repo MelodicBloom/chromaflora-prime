@@ -29,7 +29,14 @@ export default function TactileLiquidGlass({ config = {} }: Props) {
 
     let animId: number;
     let mouse = { x: -1000, y: -1000 };
-    type Particle = { x: number; y: number; vx: number; vy: number; life: number; maxLife: number };
+    type Particle = {
+      x: number;
+      y: number;
+      vx: number;
+      vy: number;
+      life: number;
+      maxLife: number;
+    };
     let particles: Particle[] = [];
 
     const resize = () => {
@@ -103,7 +110,7 @@ export default function TactileLiquidGlass({ config = {} }: Props) {
   return (
     <canvas
       ref={canvasRef}
-      className="fixed inset-0 pointer-events-none"
+      className="pointer-events-none fixed inset-0"
       style={{ mixBlendMode: 'screen', opacity: 0.6, zIndex: 1 }}
       aria-hidden="true"
     />

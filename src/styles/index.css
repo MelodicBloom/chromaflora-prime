@@ -1,22 +1,69 @@
-@tailwind base; @tailwind components; @tailwind utilities;
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
-:root { --main-hue: 280; --glow-opacity: 0.6; }
-body { background: #030305; color: white; cursor: none !important; overflow-x: hidden; }
+:root {
+  --main-hue: 280;
+  --glow-opacity: 0.6;
+}
+body {
+  background: #030305;
+  color: white;
+  cursor: none !important;
+  overflow-x: hidden;
+}
 
-.glass-card { background: rgba(10, 10, 20, 0.7); backdrop-filter: blur(40px); border: 1px solid rgba(255, 255, 255, 0.1); }
-.fresnel-border { position: relative; overflow: hidden; }
+.glass-card {
+  background: rgba(10, 10, 20, 0.7);
+  backdrop-filter: blur(40px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+.fresnel-border {
+  position: relative;
+  overflow: hidden;
+}
 .fresnel-border::before {
-  content: ""; position: absolute; inset: -1px; padding: 1px; pointer-events: none;
-  background: radial-gradient(circle at var(--mouse-x, 50%) var(--mouse-y, 50%), hsla(var(--main-hue), 80%, 60%, 0.6) 0%, transparent 70%);
-  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  content: '';
+  position: absolute;
+  inset: -1px;
+  padding: 1px;
+  pointer-events: none;
+  background: radial-gradient(
+    circle at var(--mouse-x, 50%) var(--mouse-y, 50%),
+    hsla(var(--main-hue), 80%, 60%, 0.6) 0%,
+    transparent 70%
+  );
+  -webkit-mask:
+    linear-gradient(#fff 0 0) content-box,
+    linear-gradient(#fff 0 0);
   mask-composite: exclude;
 }
-.grain-overlay { position: fixed; inset: 0; background-image: url("https://grainy-gradients.vercel.app/noise.svg"); opacity: 0.04; pointer-events: none; z-index: 999; }
-.gooey-filter { filter: url(#gooey); }
-.is-corrupted { --main-hue: 0 !important; filter: contrast(1.2); }
-.is-corrupted .glass-card { animation: jitter 0.15s infinite; }
-@keyframes jitter { 
-  0% { transform: translate(0,0); } 
-  50% { transform: translate(-2px, 1px); } 
-  100% { transform: translate(0,0); } 
+.grain-overlay {
+  position: fixed;
+  inset: 0;
+  background-image: url('https://grainy-gradients.vercel.app/noise.svg');
+  opacity: 0.04;
+  pointer-events: none;
+  z-index: 999;
+}
+.gooey-filter {
+  filter: url(#gooey);
+}
+.is-corrupted {
+  --main-hue: 0 !important;
+  filter: contrast(1.2);
+}
+.is-corrupted .glass-card {
+  animation: jitter 0.15s infinite;
+}
+@keyframes jitter {
+  0% {
+    transform: translate(0, 0);
+  }
+  50% {
+    transform: translate(-2px, 1px);
+  }
+  100% {
+    transform: translate(0, 0);
+  }
 }

@@ -9,19 +9,19 @@ export function FooterSection() {
   const inView = useInView(ref, { once: true, margin: '-60px' });
 
   return (
-    <footer className="relative py-16 px-4 border-t border-white/5">
+    <footer className="relative border-t border-white/5 px-4 py-16">
       <motion.div
         ref={ref}
-        className="max-w-6xl mx-auto flex flex-col md:flex-row items-center justify-between gap-6"
+        className="mx-auto flex max-w-6xl flex-col items-center justify-between gap-6 md:flex-row"
         initial={{ opacity: 0, y: 16 }}
         animate={inView ? { opacity: 1, y: 0 } : {}}
         transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
       >
         <div>
-          <p className="font-display font-bold text-gradient-rainbow text-lg">
+          <p className="text-gradient-rainbow font-display text-lg font-bold">
             {SITE.name}
           </p>
-          <p className="text-text-muted text-xs font-mono mt-1">
+          <p className="mt-1 font-mono text-xs text-text-muted">
             {SITE.tagline}
           </p>
         </div>
@@ -35,14 +35,14 @@ export function FooterSection() {
                     href={link.href}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="text-text-muted hover:text-text-secondary transition-colors duration-200 text-xs font-mono"
+                    className="font-mono text-xs text-text-muted transition-colors duration-200 hover:text-text-secondary"
                   >
                     {link.label} ↗
                   </a>
                 ) : (
                   <a
                     href={link.href}
-                    className="text-text-muted hover:text-text-secondary transition-colors duration-200 text-xs font-mono"
+                    className="font-mono text-xs text-text-muted transition-colors duration-200 hover:text-text-secondary"
                   >
                     {link.label}
                   </a>
@@ -52,7 +52,7 @@ export function FooterSection() {
           </ul>
         </nav>
 
-        <p className="text-text-muted text-xs font-mono">
+        <p className="font-mono text-xs text-text-muted">
           Built with Next.js · WebGL · Framer Motion
         </p>
       </motion.div>

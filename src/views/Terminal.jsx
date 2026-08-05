@@ -7,20 +7,34 @@ export const TerminalView = () => {
   const [input, setInput] = useState('');
   const handleInput = (e) => {
     setInput(e.target.value);
-    if(e.target.value.toLowerCase() === 'dark_aether') {
-      setIdentity(p => ({...p, isCorrupted: !p.isCorrupted}));
+    if (e.target.value.toLowerCase() === 'dark_aether') {
+      setIdentity((p) => ({ ...p, isCorrupted: !p.isCorrupted }));
       setInput('');
-      emitRipple(window.innerWidth/2, window.innerHeight/2, 5);
+      emitRipple(window.innerWidth / 2, window.innerHeight / 2, 5);
     }
   };
   return (
-    <div className="max-w-md mx-auto h-[60vh] flex flex-col items-center justify-center space-y-12">
-      <div className={`w-32 h-32 rounded-full border border-accent/30 flex items-center justify-center transition-all duration-700 ${identity.isAuthenticated ? 'bg-accent text-black scale-110' : 'text-accent'}`} onClick={() => setIdentity(p=>({...p, isAuthenticated: true}))}>
-        {identity.isAuthenticated ? <Unlock size={40}/> : <Fingerprint size={40} className="animate-pulse" />}
+    <div className="mx-auto flex h-[60vh] max-w-md flex-col items-center justify-center space-y-12">
+      <div
+        className={`flex h-32 w-32 items-center justify-center rounded-full border border-accent/30 transition-all duration-700 ${identity.isAuthenticated ? 'scale-110 bg-accent text-black' : 'text-accent'}`}
+        onClick={() => setIdentity((p) => ({ ...p, isAuthenticated: true }))}
+      >
+        {identity.isAuthenticated ? (
+          <Unlock size={40} />
+        ) : (
+          <Fingerprint size={40} className="animate-pulse" />
+        )}
       </div>
-      <div className="w-full glass-card p-4 rounded-xl font-mono text-xs space-y-2">
-        <div className="text-accent uppercase tracking-widest">Protocol_Wait...</div>
-        <input value={input} onChange={handleInput} placeholder="Type code..." className="w-full bg-transparent outline-none border-none text-white uppercase" />
+      <div className="glass-card w-full space-y-2 rounded-xl p-4 font-mono text-xs">
+        <div className="uppercase tracking-widest text-accent">
+          Protocol_Wait...
+        </div>
+        <input
+          value={input}
+          onChange={handleInput}
+          placeholder="Type code..."
+          className="w-full border-none bg-transparent uppercase text-white outline-none"
+        />
       </div>
     </div>
   );
