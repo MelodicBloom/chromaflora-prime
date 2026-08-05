@@ -20,7 +20,9 @@ export function Navbar() {
 
   // Close menu on resize to desktop
   useEffect(() => {
-    const onResize = () => { if (window.innerWidth >= 768) setMenuOpen(false); };
+    const onResize = () => {
+      if (window.innerWidth >= 768) setMenuOpen(false);
+    };
     window.addEventListener('resize', onResize);
     return () => window.removeEventListener('resize', onResize);
   }, []);
@@ -28,24 +30,43 @@ export function Navbar() {
   // Lock body scroll when menu is open
   useEffect(() => {
     document.body.style.overflow = menuOpen ? 'hidden' : '';
-    return () => { document.body.style.overflow = ''; };
+    return () => {
+      document.body.style.overflow = '';
+    };
   }, [menuOpen]);
 
   const closeMenu = useCallback(() => setMenuOpen(false), []);
 
   const pillColor =
     corruption > 0.5
-      ? { border: 'border-rainbow-red/40', text: 'text-rainbow-red', bg: 'bg-rainbow-red/5', dot: 'var(--color-rainbow-red)' }
+      ? {
+          border: 'border-rainbow-red/40',
+          text: 'text-rainbow-red',
+          bg: 'bg-rainbow-red/5',
+          dot: 'var(--color-rainbow-red)',
+        }
       : corruption > 0.1
-      ? { border: 'border-rainbow-orange/40', text: 'text-rainbow-orange', bg: 'bg-rainbow-orange/5', dot: 'var(--color-rainbow-orange)' }
-      : { border: 'border-rainbow-cyan/40', text: 'text-rainbow-cyan', bg: 'bg-rainbow-cyan/5', dot: 'var(--color-rainbow-cyan)' };
+        ? {
+            border: 'border-rainbow-orange/40',
+            text: 'text-rainbow-orange',
+            bg: 'bg-rainbow-orange/5',
+            dot: 'var(--color-rainbow-orange)',
+          }
+        : {
+            border: 'border-rainbow-cyan/40',
+            text: 'text-rainbow-cyan',
+            bg: 'bg-rainbow-cyan/5',
+            dot: 'var(--color-rainbow-cyan)',
+          };
 
   return (
     <>
       <header
         className={cn(
           'fixed top-0 left-0 right-0 z-[200] transition-all duration-500',
-          scrolled ? 'backdrop-blur-xl bg-bg-primary/80 border-b border-white/5' : 'bg-transparent'
+          scrolled
+            ? 'backdrop-blur-xl bg-bg-primary/80 border-b border-white/5'
+            : 'bg-transparent'
         )}
       >
         <nav
@@ -91,7 +112,9 @@ export function Navbar() {
             <span
               className={cn(
                 'hidden sm:inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-mono border transition-all duration-500',
-                pillColor.border, pillColor.text, pillColor.bg
+                pillColor.border,
+                pillColor.text,
+                pillColor.bg
               )}
             >
               <span
@@ -106,7 +129,7 @@ export function Navbar() {
               className="md:hidden flex flex-col justify-center items-center w-9 h-9 gap-1.5 rounded-lg hover:bg-white/5 transition-colors"
               aria-label={menuOpen ? 'Close menu' : 'Open menu'}
               aria-expanded={menuOpen}
-              onClick={() => setMenuOpen((o) => !o)}
+              onClick={() => setMenuOpen((open) => !open)}
             >
               <motion.span
                 className="w-5 h-px bg-text-primary block"
@@ -156,12 +179,12 @@ export function Navbar() {
             >
               <div className="mx-4 rounded-2xl backdrop-blur-xl bg-bg-secondary/90 border border-white/10 overflow-hidden">
                 <ul role="list" className="p-2">
-                  {NAV_LINKS.map((link, i) => (
+                  {NAV_LINKS.map((link, index) => (
                     <motion.li
                       key={link.label}
                       initial={{ opacity: 0, x: -12 }}
                       animate={{ opacity: 1, x: 0 }}
-                      transition={{ delay: i * 0.05, duration: 0.2 }}
+                      transition={{ delay: index * 0.05, duration: 0.2 }}
                     >
                       {'external' in link && link.external ? (
                         <a
