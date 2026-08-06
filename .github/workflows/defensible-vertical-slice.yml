@@ -6,7 +6,7 @@ permissions:
   contents: read
 jobs:
   verify:
-    uses: MelodicBloom/.github/.github/workflows/reusable-defensible-vertical-slice.yml@d6b1d5a950a2d0166e174f7ad3560dfbf0f54abb
+    uses: MelodicBloom/.github/.github/workflows/reusable-defensible-vertical-slice.yml@51d2de7b08a91cadc59a82899b25a46d78151fa2
     with:
       # package-lock.json was regenerated and frozen-install validated on 2026-08-01.
       node-version: '20'
