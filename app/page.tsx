@@ -12,21 +12,33 @@ import type { UIState } from '@/types';
 
 const TactileLiquidGlass = dynamic(
   () => import('@/components/effects/TactileLiquidGlass'),
-  { ssr: false, loading: () => <div className="fixed inset-0 bg-bg-primary/50 backdrop-blur-sm" /> }
+  {
+    ssr: false,
+    loading: () => (
+      <div className="bg-bg-primary/50 fixed inset-0 backdrop-blur-sm" />
+    ),
+  }
 );
 
 const ElasticCursor = dynamic(
-  () => import('@/components/effects/ElasticCursor').then((m) => m.ElasticCursor),
+  () =>
+    import('@/components/effects/ElasticCursor').then((m) => m.ElasticCursor),
   { ssr: false }
 );
 
 const CorruptionOverlay = dynamic(
-  () => import('@/components/effects/CorruptionOverlay').then((m) => m.CorruptionOverlay),
+  () =>
+    import('@/components/effects/CorruptionOverlay').then(
+      (m) => m.CorruptionOverlay
+    ),
   { ssr: false }
 );
 
 const AuthenticationSequence = dynamic(
-  () => import('@/components/effects/AuthenticationSequence').then((m) => m.AuthenticationSequence),
+  () =>
+    import('@/components/effects/AuthenticationSequence').then(
+      (m) => m.AuthenticationSequence
+    ),
   { ssr: false }
 );
 
@@ -34,8 +46,12 @@ function AudioInitializer() {
   useEffect(() => {
     const handleFirstInteraction = () => initAudio();
     document.addEventListener('click', handleFirstInteraction, { once: true });
-    document.addEventListener('touchstart', handleFirstInteraction, { once: true });
-    document.addEventListener('keydown', handleFirstInteraction, { once: true });
+    document.addEventListener('touchstart', handleFirstInteraction, {
+      once: true,
+    });
+    document.addEventListener('keydown', handleFirstInteraction, {
+      once: true,
+    });
     return () => {
       document.removeEventListener('click', handleFirstInteraction);
       document.removeEventListener('touchstart', handleFirstInteraction);
@@ -57,8 +73,8 @@ export default function HomePage() {
 
   if (!mounted) {
     return (
-      <div className="min-h-screen bg-bg-primary flex items-center justify-center">
-        <div className="w-8 h-8 rounded-full border-2 border-rainbow-cyan border-t-transparent animate-spin" />
+      <div className="flex min-h-screen items-center justify-center bg-bg-primary">
+        <div className="h-8 w-8 animate-spin rounded-full border-2 border-rainbow-cyan border-t-transparent" />
       </div>
     );
   }
@@ -66,16 +82,30 @@ export default function HomePage() {
   return (
     <>
       <AudioInitializer />
-      <div className="fixed inset-0 pointer-events-none z-[1]">
+      <div className="pointer-events-none fixed inset-0 z-[1]">
         <Suspense fallback={null}>
           <TactileLiquidGlass
-            config={{ fluidColor: '#33ccff', blend: 3, intensity: 8, force: 1.5, distortion: 1.5, radius: 0.25, rainbow: true }}
+            config={{
+              fluidColor: '#33ccff',
+              blend: 3,
+              intensity: 8,
+              force: 1.5,
+              distortion: 1.5,
+              radius: 0.25,
+              rainbow: true,
+            }}
           />
         </Suspense>
       </div>
-      <Suspense fallback={null}><CorruptionOverlay /></Suspense>
-      <Suspense fallback={null}><AuthenticationSequence /></Suspense>
-      <Suspense fallback={null}><ElasticCursor /></Suspense>
+      <Suspense fallback={null}>
+        <CorruptionOverlay />
+      </Suspense>
+      <Suspense fallback={null}>
+        <AuthenticationSequence />
+      </Suspense>
+      <Suspense fallback={null}>
+        <ElasticCursor />
+      </Suspense>
       <div className="relative z-10">
         <HeroSection />
         <FeaturesSection />
@@ -83,7 +113,7 @@ export default function HomePage() {
         <FooterSection />
       </div>
       {process.env.NODE_ENV === 'development' && (
-        <div className="fixed bottom-4 right-4 z-[1000] px-3 py-2 rounded-lg bg-black/80 text-xs font-mono text-white/60 backdrop-blur-sm">
+        <div className="fixed bottom-4 right-4 z-[1000] rounded-lg bg-black/80 px-3 py-2 font-mono text-xs text-white/60 backdrop-blur-sm">
           State: {uiState}
         </div>
       )}

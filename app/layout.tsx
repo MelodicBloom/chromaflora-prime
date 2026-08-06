@@ -31,14 +31,27 @@ export const metadata: Metadata = {
   },
   description:
     'An immersive digital garden where code blooms into consciousness. Experience fluid glass, spectral ink, and corruption-driven narrative.',
-  keywords: ['immersive UI', 'WebGL', 'glassmorphism', 'interactive narrative', 'digital garden', 'ChromaFlora'],
+  keywords: [
+    'immersive UI',
+    'WebGL',
+    'glassmorphism',
+    'interactive narrative',
+    'digital garden',
+    'ChromaFlora',
+  ],
   authors: [{ name: 'ChromaFlora' }],
   creator: 'ChromaFlora',
   publisher: 'ChromaFlora',
   robots: {
     index: true,
     follow: true,
-    googleBot: { index: true, follow: true, 'max-video-preview': -1, 'max-image-preview': 'large', 'max-snippet': -1 },
+    googleBot: {
+      index: true,
+      follow: true,
+      'max-video-preview': -1,
+      'max-image-preview': 'large',
+      'max-snippet': -1,
+    },
   },
   openGraph: {
     type: 'website',
@@ -46,18 +59,30 @@ export const metadata: Metadata = {
     url: 'https://chromaflora.prime',
     siteName: 'ChromaFlora Prime',
     title: 'ChromaFlora Prime',
-    description: 'An immersive digital garden where code blooms into consciousness.',
-    images: [{ url: '/og-image.jpg', width: 1200, height: 630, alt: 'ChromaFlora Prime — Immersive Digital Garden' }],
+    description:
+      'An immersive digital garden where code blooms into consciousness.',
+    images: [
+      {
+        url: '/og-image.jpg',
+        width: 1200,
+        height: 630,
+        alt: 'ChromaFlora Prime — Immersive Digital Garden',
+      },
+    ],
   },
   twitter: {
     card: 'summary_large_image',
     title: 'ChromaFlora Prime',
-    description: 'An immersive digital garden where code blooms into consciousness.',
+    description:
+      'An immersive digital garden where code blooms into consciousness.',
     images: ['/og-image.jpg'],
     creator: '@chromaflora',
   },
   icons: {
-    icon: [{ url: '/favicon.ico', sizes: 'any' }, { url: '/icon.svg', type: 'image/svg+xml' }],
+    icon: [
+      { url: '/favicon.ico', sizes: 'any' },
+      { url: '/icon.svg', type: 'image/svg+xml' },
+    ],
     apple: [{ url: '/apple-touch-icon.png', sizes: '180x180' }],
   },
   manifest: '/site.webmanifest',
@@ -92,7 +117,11 @@ const criticalCSS = `
   }
 `;
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+export default function RootLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   return (
     <html
       lang="en"
@@ -108,7 +137,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       >
         <a
           href="#main-content"
-          className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-[10000] focus:px-4 focus:py-2 focus:bg-rainbow-cyan focus:text-black focus:rounded-lg focus:font-medium"
+          className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-[10000] focus:rounded-lg focus:bg-rainbow-cyan focus:px-4 focus:py-2 focus:font-medium focus:text-black"
         >
           Skip to main content
         </a>

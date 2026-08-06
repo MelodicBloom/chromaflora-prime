@@ -9,7 +9,7 @@ jobs:
     uses: MelodicBloom/.github/.github/workflows/reusable-defensible-vertical-slice.yml@d6b1d5a950a2d0166e174f7ad3560dfbf0f54abb
     with:
       # package-lock.json was regenerated and frozen-install validated on 2026-08-01.
-      node-version: "20"
+      node-version: '20'
       package-manager: npm
       profile-path: .melodicbloom/verification-profile.json
       lint-command: npm run lint

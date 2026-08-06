@@ -8,15 +8,15 @@ An immersive digital garden built with Next.js 14, WebGL, and a corruption-drive
 
 ## Stack
 
-| Layer | Tech |
-|---|---|
-| Framework | Next.js 14 (App Router) |
-| Styling | Tailwind CSS + CSS custom properties |
-| Animation | Framer Motion |
+| Layer        | Tech                                         |
+| ------------ | -------------------------------------------- |
+| Framework    | Next.js 14 (App Router)                      |
+| Styling      | Tailwind CSS + CSS custom properties         |
+| Animation    | Framer Motion                                |
 | 3D / Effects | Three.js, @react-three/fiber, postprocessing |
-| State | Zustand + subscribeWithSelector |
-| Audio | Web Audio API |
-| Language | TypeScript (strict) |
+| State        | Zustand + subscribeWithSelector              |
+| Audio        | Web Audio API                                |
+| Language     | TypeScript (strict)                          |
 
 ## Narrative States
 

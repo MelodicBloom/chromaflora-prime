@@ -37,7 +37,9 @@ export function AuthenticationSequence() {
     };
     run();
 
-    return () => { cancelled = true; };
+    return () => {
+      cancelled = true;
+    };
   }, [uiState]);
 
   const handleAuth = async () => {
@@ -46,18 +48,19 @@ export function AuthenticationSequence() {
     narrativeEngine.advance();
   };
 
-  if (dismissed || (uiState !== 'pristine' && uiState !== 'awakening')) return null;
+  if (dismissed || (uiState !== 'pristine' && uiState !== 'awakening'))
+    return null;
 
   return (
     <div
-      className="fixed inset-0 flex items-center justify-center bg-bg-primary/95 backdrop-blur-sm"
+      className="bg-bg-primary/95 fixed inset-0 flex items-center justify-center backdrop-blur-sm"
       style={{ zIndex: 500 }}
       role="dialog"
       aria-modal="true"
       aria-label="Authentication sequence"
     >
-      <div className="glass-card p-8 max-w-lg w-full mx-4 font-mono text-sm">
-        <div className="space-y-1 mb-6">
+      <div className="glass-card mx-4 w-full max-w-lg p-8 font-mono text-sm">
+        <div className="mb-6 space-y-1">
           {lines.map((line, i) => (
             <div
               key={i}
@@ -71,14 +74,14 @@ export function AuthenticationSequence() {
             </div>
           ))}
           {!done && (
-            <span className="inline-block w-2 h-4 bg-rainbow-cyan animate-pulse" />
+            <span className="inline-block h-4 w-2 animate-pulse bg-rainbow-cyan" />
           )}
         </div>
 
         {done && (
           <button
             onClick={handleAuth}
-            className="w-full py-3 rounded-lg border border-rainbow-cyan text-rainbow-cyan hover:bg-rainbow-cyan/10 transition-colors duration-300 tracking-widest uppercase text-xs font-semibold focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-rainbow-cyan"
+            className="hover:bg-rainbow-cyan/10 w-full rounded-lg border border-rainbow-cyan py-3 text-xs font-semibold uppercase tracking-widest text-rainbow-cyan transition-colors duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-rainbow-cyan"
             autoFocus
           >
             Initialize

@@ -63,27 +63,27 @@ export function Navbar() {
     <>
       <header
         className={cn(
-          'fixed top-0 left-0 right-0 z-[200] transition-all duration-500',
+          'fixed left-0 right-0 top-0 z-[200] transition-all duration-500',
           scrolled
-            ? 'backdrop-blur-xl bg-bg-primary/80 border-b border-white/5'
+            ? 'bg-bg-primary/80 border-b border-white/5 backdrop-blur-xl'
             : 'bg-transparent'
         )}
       >
         <nav
-          className="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between"
+          className="mx-auto flex h-16 max-w-6xl items-center justify-between px-4"
           aria-label="Main navigation"
         >
           {/* Logo */}
           <Link
             href="/"
-            className="font-display font-bold text-gradient-rainbow text-lg tracking-tight hover:opacity-80 transition-opacity"
+            className="text-gradient-rainbow font-display text-lg font-bold tracking-tight transition-opacity hover:opacity-80"
             onClick={closeMenu}
           >
             {SITE.name}
           </Link>
 
           {/* Desktop links */}
-          <ul className="hidden md:flex items-center gap-6" role="list">
+          <ul className="hidden items-center gap-6 md:flex" role="list">
             {NAV_LINKS.map((link) => (
               <li key={link.label}>
                 {'external' in link && link.external ? (
@@ -91,14 +91,14 @@ export function Navbar() {
                     href={link.href}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="text-text-secondary hover:text-text-primary transition-colors duration-200 text-sm font-medium"
+                    className="text-sm font-medium text-text-secondary transition-colors duration-200 hover:text-text-primary"
                   >
                     {link.label} ↗
                   </a>
                 ) : (
                   <a
                     href={link.href}
-                    className="text-text-secondary hover:text-text-primary transition-colors duration-200 text-sm font-medium"
+                    className="text-sm font-medium text-text-secondary transition-colors duration-200 hover:text-text-primary"
                   >
                     {link.label}
                   </a>
@@ -111,14 +111,14 @@ export function Navbar() {
           <div className="flex items-center gap-3">
             <span
               className={cn(
-                'hidden sm:inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-mono border transition-all duration-500',
+                'hidden items-center gap-1.5 rounded-full border px-3 py-1 font-mono text-xs transition-all duration-500 sm:inline-flex',
                 pillColor.border,
                 pillColor.text,
                 pillColor.bg
               )}
             >
               <span
-                className="w-1.5 h-1.5 rounded-full animate-pulse"
+                className="h-1.5 w-1.5 animate-pulse rounded-full"
                 style={{ background: pillColor.dot }}
               />
               {uiState.toUpperCase()}
@@ -126,24 +126,26 @@ export function Navbar() {
 
             {/* Hamburger — mobile only */}
             <button
-              className="md:hidden flex flex-col justify-center items-center w-9 h-9 gap-1.5 rounded-lg hover:bg-white/5 transition-colors"
+              className="flex h-9 w-9 flex-col items-center justify-center gap-1.5 rounded-lg transition-colors hover:bg-white/5 md:hidden"
               aria-label={menuOpen ? 'Close menu' : 'Open menu'}
               aria-expanded={menuOpen}
               onClick={() => setMenuOpen((open) => !open)}
             >
               <motion.span
-                className="w-5 h-px bg-text-primary block"
+                className="block h-px w-5 bg-text-primary"
                 animate={menuOpen ? { rotate: 45, y: 4 } : { rotate: 0, y: 0 }}
                 transition={{ duration: 0.2 }}
               />
               <motion.span
-                className="w-5 h-px bg-text-primary block"
+                className="block h-px w-5 bg-text-primary"
                 animate={menuOpen ? { opacity: 0 } : { opacity: 1 }}
                 transition={{ duration: 0.15 }}
               />
               <motion.span
-                className="w-5 h-px bg-text-primary block"
-                animate={menuOpen ? { rotate: -45, y: -4 } : { rotate: 0, y: 0 }}
+                className="block h-px w-5 bg-text-primary"
+                animate={
+                  menuOpen ? { rotate: -45, y: -4 } : { rotate: 0, y: 0 }
+                }
                 transition={{ duration: 0.2 }}
               />
             </button>
@@ -170,14 +172,14 @@ export function Navbar() {
             {/* Drawer panel */}
             <motion.nav
               key="drawer"
-              className="fixed top-16 left-0 right-0 z-[195] md:hidden"
+              className="fixed left-0 right-0 top-16 z-[195] md:hidden"
               initial={{ opacity: 0, y: -8 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -8 }}
               transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
               aria-label="Mobile navigation"
             >
-              <div className="mx-4 rounded-2xl backdrop-blur-xl bg-bg-secondary/90 border border-white/10 overflow-hidden">
+              <div className="bg-bg-secondary/90 mx-4 overflow-hidden rounded-2xl border border-white/10 backdrop-blur-xl">
                 <ul role="list" className="p-2">
                   {NAV_LINKS.map((link, index) => (
                     <motion.li
@@ -191,16 +193,16 @@ export function Navbar() {
                           href={link.href}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="flex items-center justify-between px-4 py-3.5 rounded-xl text-text-secondary hover:text-text-primary hover:bg-white/5 transition-colors text-sm font-medium"
+                          className="flex items-center justify-between rounded-xl px-4 py-3.5 text-sm font-medium text-text-secondary transition-colors hover:bg-white/5 hover:text-text-primary"
                           onClick={closeMenu}
                         >
                           {link.label}
-                          <span className="text-text-muted text-xs">↗</span>
+                          <span className="text-xs text-text-muted">↗</span>
                         </a>
                       ) : (
                         <a
                           href={link.href}
-                          className="flex items-center px-4 py-3.5 rounded-xl text-text-secondary hover:text-text-primary hover:bg-white/5 transition-colors text-sm font-medium"
+                          className="flex items-center rounded-xl px-4 py-3.5 text-sm font-medium text-text-secondary transition-colors hover:bg-white/5 hover:text-text-primary"
                           onClick={closeMenu}
                         >
                           {link.label}
@@ -211,15 +213,15 @@ export function Navbar() {
                 </ul>
 
                 {/* State indicator in drawer */}
-                <div className="px-6 py-3 border-t border-white/5">
+                <div className="border-t border-white/5 px-6 py-3">
                   <span
                     className={cn(
-                      'inline-flex items-center gap-1.5 text-xs font-mono',
+                      'inline-flex items-center gap-1.5 font-mono text-xs',
                       pillColor.text
                     )}
                   >
                     <span
-                      className="w-1.5 h-1.5 rounded-full animate-pulse"
+                      className="h-1.5 w-1.5 animate-pulse rounded-full"
                       style={{ background: pillColor.dot }}
                     />
                     {uiState.toUpperCase()}
