@@ -15,7 +15,8 @@ export const TerminalView = () => {
   };
   return (
     <div className="mx-auto flex h-[60vh] max-w-md flex-col items-center justify-center space-y-12">
-      <div
+      <button
+        type="button"
         className={`flex h-32 w-32 items-center justify-center rounded-full border border-accent/30 transition-all duration-700 ${identity.isAuthenticated ? 'scale-110 bg-accent text-black' : 'text-accent'}`}
         onClick={() => setIdentity((p) => ({ ...p, isAuthenticated: true }))}
       >
@@ -24,7 +25,7 @@ export const TerminalView = () => {
         ) : (
           <Fingerprint size={40} className="animate-pulse" />
         )}
-      </div>
+      </button>
       <div className="glass-card w-full space-y-2 rounded-xl p-4 font-mono text-xs">
         <div className="uppercase tracking-widest text-accent">
           Protocol_Wait...

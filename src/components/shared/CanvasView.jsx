@@ -48,7 +48,7 @@ export const CanvasView = () => {
         ctx.fillStyle = 'rgba(255,255,255,0.3)';
         ctx.fillRect(s.x, s.y, s.s, s.s);
       });
-      state.current.ripples.forEach((rp, i) => {
+      state.current.ripples.forEach((rp) => {
         ctx.beginPath();
         ctx.arc(rp.x, rp.y, rp.r, 0, Math.PI * 2);
         ctx.strokeStyle = `hsla(${identity.hue}, 100%, 70%, ${rp.a})`;
@@ -56,8 +56,8 @@ export const CanvasView = () => {
         ctx.stroke();
         rp.r += 4 * rp.p;
         rp.a -= 0.015;
-        if (rp.a <= 0) state.current.ripples.splice(i, 1);
       });
+      state.current.ripples = state.current.ripples.filter((rp) => rp.a > 0);
       rafId.current = requestAnimationFrame(draw);
     };
     rafId.current = requestAnimationFrame(draw);
