@@ -39,7 +39,17 @@ export function CorruptionOverlay() {
           const y = Math.random() * canvas.height;
           const h = Math.random() * 4 + 1;
           const offset = (Math.random() - 0.5) * 30 * corruption;
-          ctx.drawImage(canvas, 0, y, canvas.width, h, offset, y, canvas.width, h);
+          ctx.drawImage(
+            canvas,
+            0,
+            y,
+            canvas.width,
+            h,
+            offset,
+            y,
+            canvas.width,
+            h
+          );
         }
 
         // RGB aberration
@@ -69,7 +79,7 @@ export function CorruptionOverlay() {
   return (
     <canvas
       ref={canvasRef}
-      className="fixed inset-0 pointer-events-none"
+      className="pointer-events-none fixed inset-0"
       style={{ zIndex: 2, mixBlendMode: 'multiply', opacity: corruption }}
       aria-hidden="true"
     />

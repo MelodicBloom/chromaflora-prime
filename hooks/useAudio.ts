@@ -23,5 +23,14 @@ export function useAudio() {
       (analyserData.length * 255)
     : 0;
 
-  return { initialized, enabled, volume, analyserData, energy, init, updateVolume, tone };
+  return {
+    initialized,
+    enabled,
+    volume,
+    analyserData,
+    energy,
+    init,
+    updateVolume,
+    tone,
+  };
 }

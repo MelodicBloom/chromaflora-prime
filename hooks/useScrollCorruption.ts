@@ -24,14 +24,15 @@ export function useScrollCorruption() {
   useEffect(() => {
     const ADVANCE_AT: Array<{ scrollPct: number; fromState: string }> = [
       { scrollPct: 0.15, fromState: 'pristine' },
-      { scrollPct: 0.4,  fromState: 'awakening' },
-      { scrollPct: 0.7,  fromState: 'corrupted' },
-      { scrollPct: 0.9,  fromState: 'fragmenting' },
+      { scrollPct: 0.4, fromState: 'awakening' },
+      { scrollPct: 0.7, fromState: 'corrupted' },
+      { scrollPct: 0.9, fromState: 'fragmenting' },
     ];
 
     function onScroll() {
       const scrollTop = window.scrollY;
-      const maxScroll = document.documentElement.scrollHeight - window.innerHeight;
+      const maxScroll =
+        document.documentElement.scrollHeight - window.innerHeight;
       if (maxScroll <= 0) return;
 
       const pct = Math.min(scrollTop / maxScroll, 1);

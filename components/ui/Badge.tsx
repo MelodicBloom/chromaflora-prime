@@ -1,6 +1,7 @@
 import { cn } from '@/lib/utils';
 
-export type BadgeVariant = 'default' | 'cyan' | 'purple' | 'red' | 'green' | 'orange';
+export type BadgeVariant =
+  'default' | 'cyan' | 'purple' | 'red' | 'green' | 'orange';
 
 export interface BadgeProps extends React.HTMLAttributes<HTMLSpanElement> {
   variant?: BadgeVariant;
@@ -25,7 +26,7 @@ export function Badge({
   return (
     <span
       className={cn(
-        'inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-mono border tracking-widest uppercase',
+        'inline-flex items-center rounded-full border px-2.5 py-0.5 font-mono text-xs uppercase tracking-widest',
         variants[variant],
         className
       )}

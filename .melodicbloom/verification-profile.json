@@ -1,17 +1,73 @@
 {
   "schema_version": 1,
   "repository": "MelodicBloom/chromaflora-prime",
-  "classification": { "archetype": "webgl-application", "maturity": "candidate", "criticality": "high" },
-  "runtime": { "node": "20", "package_manager": "npm", "lockfile": "package-lock.json" },
-  "commands": { "lint": "npm run lint", "typecheck": "npm run type-check", "test": null, "build": "npm run build", "specialized": "npm run format:check" },
+  "classification": {
+    "archetype": "webgl-application",
+    "maturity": "candidate",
+    "criticality": "high"
+  },
+  "runtime": {
+    "node": "20",
+    "package_manager": "npm",
+    "lockfile": "package-lock.json"
+  },
+  "commands": {
+    "lint": "npm run lint",
+    "typecheck": "npm run type-check",
+    "test": null,
+    "build": "npm run build",
+    "specialized": "npm run format:check"
+  },
   "surfaces": {
-    "static": ["typescript", "next-build", "eslint", "formatting", "frozen-dependencies"],
-    "behavioral": ["navigation-drawer", "motion-state-continuity", "react-three-rendering"],
-    "visual": ["garden-composition", "fluid-distortion-fallback", "responsive-layering"],
-    "accessibility": ["mobile-navigation-label", "keyboard-navigation", "reduced-motion", "non-color-state-communication"],
-    "performance": ["bundle-observation", "webgl-resource-cleanup", "motion-main-thread-budget"],
+    "static": [
+      "typescript",
+      "next-build",
+      "eslint",
+      "formatting",
+      "frozen-dependencies"
+    ],
+    "behavioral": [
+      "navigation-drawer",
+      "motion-state-continuity",
+      "react-three-rendering"
+    ],
+    "visual": [
+      "garden-composition",
+      "fluid-distortion-fallback",
+      "responsive-layering"
+    ],
+    "accessibility": [
+      "mobile-navigation-label",
+      "keyboard-navigation",
+      "reduced-motion",
+      "non-color-state-communication"
+    ],
+    "performance": [
+      "bundle-observation",
+      "webgl-resource-cleanup",
+      "motion-main-thread-budget"
+    ],
     "deployment": ["preview-only-after-verification"]
   },
-  "promotion": { "mode": "observe", "required_gates": ["lint", "typecheck", "format", "build", "navigation-accessibility", "motion-fallback"], "human_approval": true },
-  "evidence": { "retention_days": 30, "artifact_paths": [".next"], "known_omissions": ["no automated interaction tests", "no committed visual baselines", "typed ESLint unused-variable enforcement requires follow-up"] }
+  "promotion": {
+    "mode": "observe",
+    "required_gates": [
+      "lint",
+      "typecheck",
+      "format",
+      "build",
+      "navigation-accessibility",
+      "motion-fallback"
+    ],
+    "human_approval": true
+  },
+  "evidence": {
+    "retention_days": 30,
+    "artifact_paths": [".next"],
+    "known_omissions": [
+      "no automated interaction tests",
+      "no committed visual baselines",
+      "typed ESLint unused-variable enforcement requires follow-up"
+    ]
+  }
 }

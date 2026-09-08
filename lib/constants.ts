@@ -16,7 +16,11 @@ export const SITE = {
 export const NAV_LINKS = [
   { label: 'Features', href: '#features' },
   { label: 'Showcase', href: '#showcase' },
-  { label: 'GitHub', href: 'https://github.com/qt314wink/chromaflora-prime', external: true },
+  {
+    label: 'GitHub',
+    href: 'https://github.com/qt314wink/chromaflora-prime',
+    external: true,
+  },
 ] as const;
 
 export const RAINBOW_COLORS = [

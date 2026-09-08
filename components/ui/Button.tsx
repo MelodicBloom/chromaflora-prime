@@ -4,8 +4,7 @@ import { cn } from '@/lib/utils';
 export type ButtonVariant = 'primary' | 'outline' | 'ghost' | 'danger';
 export type ButtonSize = 'sm' | 'md' | 'lg';
 
-export interface ButtonProps
-  extends React.ButtonHTMLAttributes<HTMLButtonElement> {
+export interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   variant?: ButtonVariant;
   size?: ButtonSize;
   loading?: boolean;
@@ -30,7 +29,15 @@ const sizes: Record<ButtonSize, string> = {
 
 export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
   (
-    { variant = 'primary', size = 'md', loading = false, disabled, className, children, ...props },
+    {
+      variant = 'primary',
+      size = 'md',
+      loading = false,
+      disabled,
+      className,
+      children,
+      ...props
+    },
     ref
   ) => {
     return (
@@ -41,7 +48,7 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
           'inline-flex items-center justify-center gap-2',
           'transition-all duration-300',
           'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-rainbow-cyan focus-visible:ring-offset-2 focus-visible:ring-offset-bg-primary',
-          'disabled:opacity-40 disabled:pointer-events-none',
+          'disabled:pointer-events-none disabled:opacity-40',
           variants[variant],
           sizes[size],
           className
@@ -49,7 +56,7 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
         {...props}
       >
         {loading && (
-          <span className="w-4 h-4 rounded-full border-2 border-current border-t-transparent animate-spin" />
+          <span className="h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" />
         )}
         {children}
       </button>

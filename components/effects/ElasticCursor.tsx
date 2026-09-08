@@ -12,11 +12,16 @@ export function ElasticCursor() {
     if (window.matchMedia('(pointer: coarse)').matches) return;
     setVisible(true);
 
-    let mx = 0, my = 0;
-    let rx = 0, ry = 0;
+    let mx = 0,
+      my = 0;
+    let rx = 0,
+      ry = 0;
     let animId: number;
 
-    const onMove = (e: MouseEvent) => { mx = e.clientX; my = e.clientY; };
+    const onMove = (e: MouseEvent) => {
+      mx = e.clientX;
+      my = e.clientY;
+    };
     window.addEventListener('mousemove', onMove);
 
     const onEnter = () => ringRef.current?.classList.add('scale-150');
@@ -59,13 +64,13 @@ export function ElasticCursor() {
     <>
       <div
         ref={dotRef}
-        className="fixed top-0 left-0 w-2 h-2 rounded-full bg-rainbow-cyan pointer-events-none mix-blend-difference"
+        className="pointer-events-none fixed left-0 top-0 h-2 w-2 rounded-full bg-rainbow-cyan mix-blend-difference"
         style={{ zIndex: 9999, willChange: 'transform' }}
         aria-hidden="true"
       />
       <div
         ref={ringRef}
-        className="fixed top-0 left-0 w-8 h-8 rounded-full border border-white/40 pointer-events-none transition-[scale,border-color] duration-150"
+        className="pointer-events-none fixed left-0 top-0 h-8 w-8 rounded-full border border-white/40 transition-[scale,border-color] duration-150"
         style={{ zIndex: 9998, willChange: 'transform' }}
         aria-hidden="true"
       />

@@ -52,10 +52,19 @@ class NarrativeEngine {
     useNarrativeStore.getState().setCorruption(corruptionMap[state]);
   }
 
-  advance() { useNarrativeStore.getState().advance(); }
-  getState(): UIState { return useNarrativeStore.getState().uiState; }
-  getCorruption(): number { return useNarrativeStore.getState().corruption; }
-  destroy() { this.listeners.clear(); this.unsubscribeStore?.(); }
+  advance() {
+    useNarrativeStore.getState().advance();
+  }
+  getState(): UIState {
+    return useNarrativeStore.getState().uiState;
+  }
+  getCorruption(): number {
+    return useNarrativeStore.getState().corruption;
+  }
+  destroy() {
+    this.listeners.clear();
+    this.unsubscribeStore?.();
+  }
 }
 
 export const narrativeEngine = new NarrativeEngine();
