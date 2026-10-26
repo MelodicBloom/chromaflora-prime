@@ -2,7 +2,7 @@
 
 > Where code blooms into consciousness.
 
-[![CI](https://github.com/qt314wink/chromaflora-prime/actions/workflows/ci.yml/badge.svg)](https://github.com/qt314wink/chromaflora-prime/actions/workflows/ci.yml)
+[![CI](https://github.com/MelodicBloom/chromaflora-prime/actions/workflows/ci.yml/badge.svg)](https://github.com/MelodicBloom/chromaflora-prime/actions/workflows/ci.yml)
 
 An immersive digital garden built with Next.js 14, WebGL, and a corruption-driven narrative state machine. Every visual layer — fluid glass, elastic cursor, RGB aberration, spatial audio — responds to a six-state narrative engine in real time.
 
