@@ -1,0 +1,2529 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Art Studio — Procedural Canvas Painting · ChromaFlora</title>
+<meta name="description" content="ChromaFlora Art Studio — layered canvas with paint pour physics, swirl tool, flood fill, and an AI image prompt builder. Share your creations with the community.">
+<meta name="author" content="Jennipher Troup">
+<meta property="og:title" content="Art Studio · ChromaFlora">
+<meta property="og:type" content="website">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:creator" content="@halcyonminx">
+<link rel="canonical" href="https://chromaflora.replit.app/studio.html">
+<meta property="og:title" content="Free Generative Art Studio Browser | ChromaFlora">
+<meta property="og:description" content="Create generative art in your browser with paint pour physics, sacred geometry overlays, spirograph, and AI prompt building. Free. No sign-up. ChromaFlora Art Studio.">
+<meta property="og:url" content="https://chromaflora.replit.app/studio.html">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="ChromaFlora">
+<meta name="twitter:site" content="@halcyonminx">
+<meta name="twitter:title" content="Free Generative Art Studio | ChromaFlora">
+<meta name="twitter:description" content="Paint pour physics, sacred geometry, spirograph & AI prompt building. Free browser-native creative studio.">
+<meta name="theme-color" content="#04040f">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"WebApplication","name":"ChromaFlora Art Studio","url":"https://chromaflora.replit.app/studio.html","applicationCategory":"DesignApplication","operatingSystem":"Browser","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"Free browser-based generative art studio with paint pour physics, sacred geometry overlays, and AI prompt building.","author":{"@type":"Person","name":"Jennipher Troup","alternateName":"@halcyonminx"}}</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #04040f; --surface: rgba(255,255,255,0.04); --border: rgba(255,255,255,0.08);
+    --purple: #a855f7; --aqua: #22d3ee; --pink: #ec4899;
+    --t-snap: 0.1s cubic-bezier(0.4,0,0.2,1);
+    --t-spring: 0.4s cubic-bezier(0.34,1.56,0.64,1);
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { height: 100%; overflow: hidden; }
+  body { font-family: 'Inter', sans-serif; background: var(--bg); color: #fff; display: flex; flex-direction: column; }
+
+  /* ── Header ── */
+  .header {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0 16px; height: 52px; flex-shrink: 0;
+    background: rgba(4,4,15,0.95); border-bottom: 1px solid var(--border);
+    z-index: 100;
+  }
+  .logo { display: flex; align-items: center; gap: 8px; font-weight: 800; font-size: 15px; }
+  .logo a { color: white; text-decoration: none; }
+  .nav { display: flex; gap: 3px; }
+  .nav-link { padding: 5px 11px; border-radius: 7px; font-size: 12px; font-weight: 500; color: rgba(255,255,255,0.6); text-decoration: none; transition: var(--t-snap); }
+  .nav-link:hover, .nav-link.active { color: white; background: rgba(255,255,255,0.07); }
+
+  /* ── Studio Layout ── */
+  .studio {
+    flex: 1; display: grid;
+    grid-template-columns: 52px 1fr 260px;
+    grid-template-rows: 1fr 220px;
+    gap: 0; min-height: 0;
+  }
+
+  /* ── Toolbar (left) ── */
+  .toolbar {
+    grid-row: 1 / 3;
+    background: rgba(6,4,20,0.95);
+    border-right: 1px solid var(--border);
+    display: flex; flex-direction: column; align-items: center;
+    padding: 10px 0; gap: 4px;
+  }
+  .tool-sep { width: 32px; height: 1px; background: var(--border); margin: 6px 0; }
+  .tool-btn {
+    width: 38px; height: 38px; border-radius: 10px; border: none; cursor: pointer;
+    background: transparent; color: rgba(255,255,255,0.55); font-size: 18px;
+    display: flex; align-items: center; justify-content: center;
+    transition: var(--t-snap); position: relative;
+  }
+  .tool-btn:hover { background: rgba(255,255,255,0.08); color: white; }
+  .tool-btn.active { background: rgba(168,85,247,0.2); color: var(--purple); box-shadow: 0 0 12px rgba(168,85,247,0.25); }
+  .tool-btn[title]:hover::after {
+    content: attr(title); position: absolute; left: 48px; top: 50%; transform: translateY(-50%);
+    background: rgba(10,6,28,0.95); border: 1px solid rgba(168,85,247,0.25);
+    color: white; font-size: 11px; white-space: nowrap; padding: 4px 10px; border-radius: 6px; z-index: 200;
+  }
+
+  /* ── Canvas area ── */
+  .canvas-area {
+    grid-column: 2; grid-row: 1;
+    position: relative; overflow: hidden; background: #0c0c20;
+    cursor: crosshair;
+    border: 1px solid rgba(168,85,247,0.08);
+  }
+  #studioCanvas {
+    position: absolute; top: 0; left: 0;
+    display: block; touch-action: none;
+    width: 100%; height: 100%;
+    z-index: 1;
+  }
+  .canvas-crosshair {
+    position: absolute; pointer-events: none; z-index: 50;
+    width: 24px; height: 24px; border-radius: 50%;
+    border: 2px solid rgba(168,85,247,0.8);
+    transform: translate(-50%,-50%); transition: width 0.1s, height 0.1s;
+    mix-blend-mode: difference;
+  }
+
+  /* ── Right panel ── */
+  .panel {
+    grid-column: 3; grid-row: 1;
+    background: rgba(6,4,20,0.95); border-left: 1px solid var(--border);
+    overflow-y: auto; display: flex; flex-direction: column;
+  }
+  .panel-section { padding: 14px 16px; border-bottom: 1px solid var(--border); }
+  .panel-title { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: rgba(255,255,255,0.35); margin-bottom: 12px; }
+
+  /* Layers */
+  .layer-list { display: flex; flex-direction: column; gap: 4px; }
+  .layer-item {
+    display: flex; align-items: center; gap: 8px; padding: 7px 8px; border-radius: 8px;
+    background: rgba(255,255,255,0.03); border: 1px solid transparent;
+    cursor: pointer; transition: var(--t-snap);
+  }
+  .layer-item:hover { background: rgba(255,255,255,0.06); }
+  .layer-item.active { border-color: rgba(168,85,247,0.35); background: rgba(168,85,247,0.08); }
+  .layer-thumb { width: 30px; height: 22px; border-radius: 4px; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1); flex-shrink: 0; overflow: hidden; }
+  .layer-thumb canvas { width: 100%; height: 100%; }
+  .layer-name { font-size: 11px; flex: 1; color: rgba(255,255,255,0.8); }
+  .layer-vis { font-size: 14px; cursor: pointer; opacity: 0.5; transition: var(--t-snap); }
+  .layer-vis:hover { opacity: 1; }
+  .layer-actions { display: flex; gap: 6px; margin-top: 8px; }
+  .layer-btn {
+    flex: 1; padding: 6px; border-radius: 7px; border: 1px solid var(--border);
+    background: rgba(255,255,255,0.04); color: rgba(255,255,255,0.7);
+    font-size: 11px; cursor: pointer; transition: var(--t-snap);
+  }
+  .layer-btn:hover { background: rgba(168,85,247,0.15); border-color: rgba(168,85,247,0.3); color: white; }
+
+  /* Color picker */
+  .color-swatches { display: grid; grid-template-columns: repeat(8, 1fr); gap: 5px; }
+  .swatch {
+    width: 100%; aspect-ratio: 1; border-radius: 5px; cursor: pointer;
+    border: 2px solid transparent; transition: var(--t-snap);
+  }
+  .swatch.active, .swatch:hover { border-color: white; transform: scale(1.15); }
+  .custom-color-row { display: flex; align-items: center; gap: 8px; margin-top: 10px; }
+  .custom-color-row input[type=color] {
+    width: 32px; height: 32px; border-radius: 8px; border: none; cursor: pointer;
+    background: none; padding: 0;
+  }
+  .custom-color-row label { font-size: 12px; color: rgba(255,255,255,0.5); }
+
+  /* Brush settings */
+  .brush-row { display: flex; flex-direction: column; gap: 10px; }
+  .mini-slider { display: flex; flex-direction: column; gap: 5px; }
+  .mini-slider-label { display: flex; justify-content: space-between; font-size: 11px; color: rgba(255,255,255,0.45); }
+  .mini-slider-label span { font-family: 'JetBrains Mono', monospace; color: var(--purple); }
+  input[type=range].mini {
+    width: 100%; height: 3px; -webkit-appearance: none; appearance: none;
+    background: linear-gradient(to right, var(--purple) var(--pct,50%), rgba(255,255,255,0.12) var(--pct,50%));
+    border-radius: 3px; cursor: pointer;
+  }
+  input[type=range].mini::-webkit-slider-thumb { -webkit-appearance: none; width: 14px; height: 14px; border-radius: 50%; background: white; }
+
+  /* Blend mode */
+  .blend-select {
+    width: 100%; padding: 7px 10px; border-radius: 8px;
+    background: rgba(255,255,255,0.05); border: 1px solid var(--border);
+    color: white; font-size: 12px; cursor: pointer; margin-top: 8px;
+  }
+  .blend-select option { background: #0d0822; }
+
+  /* ── Bottom: Prompt builder ── */
+  .prompt-area {
+    grid-column: 2 / 4; grid-row: 2;
+    background: rgba(6,4,18,0.98); border-top: 1px solid var(--border);
+    display: flex; flex-direction: column; padding: 14px 18px; gap: 10px;
+    overflow-y: auto;
+  }
+  .prompt-header { display: flex; align-items: center; justify-content: space-between; }
+  .prompt-title { font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: rgba(255,255,255,0.35); }
+  .prompt-params { display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 8px; }
+  .param-group { display: flex; flex-direction: column; gap: 4px; }
+  .param-label { font-size: 10px; color: rgba(255,255,255,0.4); }
+  .param-select, .param-input {
+    padding: 6px 10px; border-radius: 7px; font-size: 11px;
+    background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.08);
+    color: white; outline: none;
+  }
+  .param-select:focus, .param-input:focus { border-color: rgba(168,85,247,0.4); }
+  .param-select option { background: #0d0822; }
+
+  .prompt-text-row { display: flex; gap: 10px; align-items: flex-end; }
+  .prompt-input {
+    flex: 1; padding: 10px 14px; border-radius: 10px;
+    background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1);
+    color: white; font-size: 13px; font-family: 'Inter', sans-serif;
+    resize: none; outline: none; min-height: 52px;
+    transition: border-color var(--t-snap);
+  }
+  .prompt-input:focus { border-color: rgba(168,85,247,0.45); }
+  .prompt-input::placeholder { color: rgba(255,255,255,0.25); }
+  .prompt-build-btn {
+    padding: 10px 20px; border-radius: 10px; border: none; cursor: pointer;
+    background: linear-gradient(135deg, var(--purple), var(--pink));
+    color: white; font-size: 13px; font-weight: 700;
+    box-shadow: 0 4px 18px rgba(168,85,247,0.35);
+    transition: var(--t-spring); white-space: nowrap;
+  }
+  .prompt-build-btn:hover { transform: translateY(-2px) scale(1.03); box-shadow: 0 8px 26px rgba(168,85,247,0.5); }
+  .prompt-build-btn:active { transform: scale(0.97); }
+  .schema-preview {
+    font-family: 'JetBrains Mono', monospace; font-size: 10px;
+    color: rgba(100,200,180,0.8); background: rgba(0,0,0,0.3);
+    border-radius: 8px; padding: 8px 12px;
+    border: 1px solid rgba(100,200,180,0.12);
+    max-height: 80px; overflow-y: auto; line-height: 1.6;
+    display: none;
+  }
+  .schema-preview.visible { display: block; }
+
+  /* ── Pour mode indicator ── */
+  .pour-controls {
+    position: absolute; top: 10px; left: 50%; transform: translateX(-50%);
+    display: flex; gap: 8px; z-index: 50;
+    background: rgba(0,0,0,0.7); backdrop-filter: blur(12px);
+    padding: 6px 12px; border-radius: 12px;
+    border: 1px solid rgba(255,255,255,0.08);
+    opacity: 0; pointer-events: none; transition: opacity var(--t-snap);
+  }
+  .pour-controls.visible { opacity: 1; pointer-events: all; }
+  .pour-btn {
+    padding: 4px 12px; border-radius: 8px; border: none; cursor: pointer;
+    font-size: 11px; font-weight: 600; background: rgba(255,255,255,0.08);
+    color: rgba(255,255,255,0.8); transition: var(--t-snap);
+  }
+  .pour-btn:hover { background: rgba(168,85,247,0.2); color: white; }
+  .pour-btn.active { background: rgba(168,85,247,0.3); color: white; }
+
+  /* ── Undo toast ── */
+  .undo-toast {
+    position: fixed; bottom: 240px; left: 50%; transform: translateX(-50%) translateY(20px);
+    background: rgba(10,6,28,0.92); border: 1px solid rgba(168,85,247,0.25);
+    color: white; font-size: 12px; padding: 8px 18px; border-radius: 10px;
+    pointer-events: none; opacity: 0; transition: all 0.25s ease; z-index: 500;
+  }
+  .undo-toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+  /* ── Art Presets ── */
+  .preset-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 6px; margin-top:6px; }
+  .preset-card {
+    border-radius: 10px; overflow: hidden; cursor: pointer;
+    border: 1px solid rgba(255,255,255,0.06);
+    transition: var(--t-snap); position: relative;
+  }
+  .preset-card:hover { border-color: rgba(168,85,247,0.5); transform: scale(1.04); }
+  .preset-card.active { border-color: rgba(168,85,247,0.8); box-shadow: 0 0 12px rgba(168,85,247,0.4); }
+  .preset-canvas { display: block; width: 100%; height: 52px; }
+  .preset-label {
+    font-size: 8px; font-weight: 700; text-align: center; padding: 4px 2px;
+    color: rgba(255,255,255,0.7); background: rgba(0,0,0,0.6);
+    letter-spacing: 0.03em; line-height: 1.2;
+  }
+  .preset-apply-btn {
+    width: 100%; margin-top: 8px; padding: 7px 0; border-radius: 8px; border: none; cursor: pointer;
+    background: linear-gradient(135deg, rgba(168,85,247,0.3), rgba(236,72,153,0.3));
+    border: 1px solid rgba(168,85,247,0.3); color: rgba(200,150,255,0.9);
+    font-size: 11px; font-weight: 700; transition: var(--t-snap);
+  }
+  .preset-apply-btn:hover { background: linear-gradient(135deg,rgba(168,85,247,0.5),rgba(236,72,153,0.5)); color:white; }
+
+  /* ── Semantic parser feedback ── */
+  .parse-tags { display:flex;flex-wrap:wrap;gap:4px;margin-top:6px; }
+  .parse-tag { padding:3px 8px;border-radius:99px;font-size:9px;font-weight:700;background:rgba(34,211,238,0.12);border:1px solid rgba(34,211,238,0.25);color:rgba(34,211,238,0.85); }
+
+
+</style>
+</head>
+<body>
+
+<!-- Header -->
+<header class="header">
+  <div class="logo"><a href="index.html">ChromaFlora</a> <span style="opacity:.3;font-weight:400;font-size:12px">/ Studio</span></div>
+  <nav class="nav">
+    <a href="studio.html"      class="nav-link active">Studio</a>
+    <a href="mandala.html"     class="nav-link">Mandala</a>
+    <a href="sonic-waves.html" class="nav-link">Waves</a>
+    <a href="band.html"        class="nav-link">Band</a>
+    <a href="ai-studio.html"   class="nav-link">AI Studio</a>
+    <a href="discovery.html"   class="nav-link">Discover</a>
+    <a href="asmr.html"        class="nav-link">ASMR</a>
+    <a href="playlist.html"    class="nav-link">Playlist</a>
+  </nav>
+  <div style="display:flex;gap:8px">
+    <button class="layer-btn" onclick="studio.export()" style="padding:5px 14px">⬇ PNG</button>
+    <button class="layer-btn" id="shareArtBtn" style="padding:5px 14px;background:linear-gradient(135deg,#a855f7,#ec4899);border-color:transparent;color:white" onclick="shareArtwork()">✦ Share</button>
+    <button class="layer-btn" onclick="copyStudioEmbed()" style="padding:5px 14px;background:rgba(34,211,216,0.08);border-color:rgba(34,211,216,0.3);color:rgba(34,211,216,0.9)" title="Copy embeddable iframe code">‹/› Embed</button>
+    <button class="layer-btn" onclick="studio.clear()" style="padding:5px 14px">Clear</button>
+  </div>
+</header>
+
+<div class="studio">
+
+  <!-- Toolbar -->
+  <div class="toolbar">
+    <button class="tool-btn active" data-tool="brush"   title="Brush (B)">🖌️</button>
+    <button class="tool-btn"        data-tool="eraser"  title="Eraser (E)">🧹</button>
+    <button class="tool-btn"        data-tool="pour"    title="Paint Pour (P)">🫗</button>
+    <button class="tool-btn"        data-tool="swirl"   title="Swirl (S)">🌀</button>
+    <button class="tool-btn"        data-tool="fill"    title="Flood Fill (F)">🪣</button>
+    <div class="tool-sep"></div>
+    <button class="tool-btn"        data-tool="rect"    title="Rectangle">⬜</button>
+    <button class="tool-btn"        data-tool="ellipse" title="Ellipse">⭕</button>
+    <button class="tool-btn"        data-tool="line"    title="Line">╱</button>
+    <button class="tool-btn"        data-tool="stamp"   title="Stamp">⭐</button>
+    <div class="tool-sep"></div>
+    <button class="tool-btn"        id="btnUndo"  title="Undo (Ctrl+Z)">↩</button>
+    <button class="tool-btn"        id="btnRedo"  title="Redo (Ctrl+Y)">↪</button>
+    <div class="tool-sep"></div>
+    <button class="tool-btn"        data-tool="select"  title="Select">⬚</button>
+    <button class="tool-btn"        id="btnImport" title="Import Image">📁</button>
+    <div class="tool-sep"></div>
+    <button class="tool-btn" data-tool="sacred"      title="Sacred Geometry Overlay (G)">✡</button>
+    <button class="tool-btn" data-tool="spirograph"  title="Spirograph Draw (R)">⊕</button>
+    <button class="tool-btn" data-tool="harmonograph"title="Harmonograph Draw (H)">⋈</button>
+    <button class="tool-btn" data-tool="plotter"     title="Plotter Preview Mode">⊡</button>
+  </div>
+
+  <!-- Canvas area -->
+  <div class="canvas-area" id="canvasArea">
+    <canvas id="studioCanvas"></canvas>
+    <canvas id="cf-webgl" style="position:absolute;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:8;mix-blend-mode:screen;opacity:0"></canvas>
+    <div class="canvas-crosshair" id="canvasCursor"></div>
+    <div class="pour-controls" id="pourControls">
+      <button class="pour-btn active" data-pour="drip">Drip</button>
+      <button class="pour-btn" data-pour="flood">Flood</button>
+      <button class="pour-btn" data-pour="splatter">Splatter</button>
+      <button class="pour-btn" data-pour="marbling">Marble</button>
+    </div>
+  </div>
+
+  <!-- Right Panel -->
+  <div class="panel">
+    <!-- Art Style Presets -->
+    <div class="panel-section">
+      <div class="panel-title" style="display:flex;align-items:center;justify-content:space-between">
+        <span>✦ Style Presets</span>
+      </div>
+      <div class="preset-grid" id="presetGrid"></div>
+      <button class="preset-apply-btn" id="btnApplyPreset">Apply Preset to Canvas</button>
+      <div style="margin-top:8px;display:flex;gap:5px">
+        <button class="layer-btn" id="btnBatchExport" style="flex:1">Batch (3×)</button>
+        <button class="layer-btn" id="btnAnimPreview" style="flex:1">Animate</button>
+      </div>
+    </div>
+
+    <!-- Layers -->
+    <div class="panel-section">
+      <div class="panel-title">Layers</div>
+      <div class="layer-list" id="layerList"></div>
+      <div class="layer-actions">
+        <button class="layer-btn" id="btnAddLayer">+ Layer</button>
+        <button class="layer-btn" id="btnDelLayer">✕ Delete</button>
+        <button class="layer-btn" id="btnMerge">⊕ Merge</button>
+      </div>
+    </div>
+
+    <!-- Colors -->
+    <div class="panel-section">
+      <div class="panel-title">Color</div>
+      <div class="color-swatches" id="swatchGrid"></div>
+      <div class="custom-color-row">
+        <input type="color" id="colorPicker" value="#a855f7">
+        <label for="colorPicker">Custom color</label>
+      </div>
+    </div>
+
+    <!-- Brush -->
+    <div class="panel-section">
+      <div class="panel-title">Brush</div>
+      <div class="brush-row">
+        <div class="mini-slider">
+          <div class="mini-slider-label">Size <span id="sizeVal">12</span></div>
+          <input type="range" class="mini" id="brushSize" min="1" max="120" value="12">
+        </div>
+        <div class="mini-slider">
+          <div class="mini-slider-label">Opacity <span id="opacVal">80%</span></div>
+          <input type="range" class="mini" id="brushOpacity" min="5" max="100" value="80">
+        </div>
+        <div class="mini-slider">
+          <div class="mini-slider-label">Hardness <span id="hardVal">70%</span></div>
+          <input type="range" class="mini" id="brushHard" min="0" max="100" value="70">
+        </div>
+        <div class="mini-slider">
+          <div class="mini-slider-label">Flow <span id="flowVal">100%</span></div>
+          <input type="range" class="mini" id="brushFlow" min="1" max="100" value="100">
+        </div>
+        <select class="blend-select" id="blendMode">
+          <option value="source-over">Normal</option>
+          <option value="multiply">Multiply</option>
+          <option value="screen">Screen</option>
+          <option value="overlay">Overlay</option>
+          <option value="color-dodge">Color Dodge</option>
+          <option value="color-burn">Color Burn</option>
+          <option value="hard-light">Hard Light</option>
+          <option value="soft-light">Soft Light</option>
+          <option value="difference">Difference</option>
+          <option value="luminosity">Luminosity</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- Pour settings -->
+    <div class="panel-section">
+      <div class="panel-title">Pour Settings</div>
+      <div class="brush-row">
+        <div class="mini-slider">
+          <div class="mini-slider-label">Viscosity <span id="viscVal">40%</span></div>
+          <input type="range" class="mini" id="viscosity" min="1" max="100" value="40">
+        </div>
+        <div class="mini-slider">
+          <div class="mini-slider-label">Gravity <span id="gravVal">70%</span></div>
+          <input type="range" class="mini" id="gravity" min="0" max="100" value="70">
+        </div>
+        <div class="mini-slider">
+          <div class="mini-slider-label">Surface Tension <span id="tensVal">50%</span></div>
+          <input type="range" class="mini" id="tension" min="0" max="100" value="50">
+        </div>
+      </div>
+    </div>
+
+    <!-- Math & Geometry Tools -->
+    <div class="panel-section" id="mathGeoSection">
+      <div class="panel-title" style="display:flex;align-items:center;justify-content:space-between">
+        <span>✦ Math &amp; Geometry</span>
+        <span style="font-size:9px;color:rgba(34,211,238,0.7);font-weight:700">SACRED</span>
+      </div>
+      <!-- Sacred Geometry Overlays -->
+      <div style="font-size:10px;color:rgba(255,255,255,.3);margin-bottom:6px;font-weight:700;text-transform:uppercase;letter-spacing:.06em">Overlay Guides</div>
+      <div style="display:flex;flex-wrap:wrap;gap:5px;margin-bottom:10px" id="geoOverlayBtns">
+        <button class="pour-btn" data-geo="none">Off</button>
+        <button class="pour-btn" data-geo="phi-grid">Phi Grid</button>
+        <button class="pour-btn" data-geo="fibonacci">Fibonacci</button>
+        <button class="pour-btn" data-geo="flower">Flower of Life</button>
+        <button class="pour-btn" data-geo="metatron">Metatron</button>
+        <button class="pour-btn" data-geo="vesica">Vesica Piscis</button>
+        <button class="pour-btn" data-geo="seed">Seed of Life</button>
+      </div>
+      <!-- Spirograph params (show when spirograph tool active) -->
+      <div id="spirographParams" style="display:none">
+        <div style="font-size:10px;color:rgba(255,255,255,.3);margin-bottom:6px;font-weight:700;text-transform:uppercase;letter-spacing:.06em">Spirograph</div>
+        <div class="mini-slider">
+          <div class="mini-slider-label">Outer R <span id="sgRVal">60</span></div>
+          <input type="range" class="mini" id="sgR" min="20" max="120" value="60">
+        </div>
+        <div class="mini-slider">
+          <div class="mini-slider-label">Inner r <span id="sgrVal">35</span></div>
+          <input type="range" class="mini" id="sgr" min="5" max="100" value="35">
+        </div>
+        <div class="mini-slider">
+          <div class="mini-slider-label">Trace d <span id="sgdVal">40</span></div>
+          <input type="range" class="mini" id="sgd" min="5" max="150" value="40">
+        </div>
+        <div class="mini-slider">
+          <div class="mini-slider-label">Loops <span id="sgLoopsVal">12</span></div>
+          <input type="range" class="mini" id="sgLoops" min="1" max="40" value="12">
+        </div>
+        <button class="pour-btn" id="btnDrawSpirograph" style="width:100%;margin-top:6px">Draw Spirograph to Canvas</button>
+      </div>
+      <!-- Harmonograph params (show when harmonograph tool active) -->
+      <div id="harmonographParams" style="display:none">
+        <div style="font-size:10px;color:rgba(255,255,255,.3);margin-bottom:6px;font-weight:700;text-transform:uppercase;letter-spacing:.06em">Harmonograph</div>
+        <div class="mini-slider">
+          <div class="mini-slider-label">Freq X <span id="hgXVal">3</span></div>
+          <input type="range" class="mini" id="studioHgX" min="1" max="8" step="0.5" value="3">
+        </div>
+        <div class="mini-slider">
+          <div class="mini-slider-label">Freq Y <span id="hgYVal">2</span></div>
+          <input type="range" class="mini" id="studioHgY" min="1" max="8" step="0.5" value="2">
+        </div>
+        <div class="mini-slider">
+          <div class="mini-slider-label">Phase <span id="hgPhVal">0.79</span></div>
+          <input type="range" class="mini" id="studioHgPh" min="0" max="628" value="157">
+        </div>
+        <div class="mini-slider">
+          <div class="mini-slider-label">Damping <span id="hgDmVal">0.001</span></div>
+          <input type="range" class="mini" id="studioHgDm" min="1" max="100" value="15">
+        </div>
+        <button class="pour-btn" id="btnDrawHarmonograph" style="width:100%;margin-top:6px">Draw Harmonograph to Canvas</button>
+      </div>
+    </div>
+
+    <!-- Physical Export -->
+    <div class="panel-section">
+      <div class="panel-title" style="display:flex;align-items:center;justify-content:space-between">
+        <span>⊡ Physical Export</span>
+        <a href="plotter.html" style="font-size:9px;color:rgba(34,211,238,0.7);font-weight:700;text-decoration:none">Plotter Studio →</a>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:6px">
+        <button class="pour-btn" onclick="exportSVG()" style="padding:7px;font-size:11px;font-weight:700;width:100%">⬡ Export SVG (AxiDraw)</button>
+        <button class="pour-btn" onclick="exportGCode()" style="padding:7px;font-size:11px;font-weight:700;width:100%">⚙ Export GCode (.nc)</button>
+        <button class="pour-btn" onclick="exportTurtle()" style="padding:7px;font-size:11px;font-weight:700;width:100%">🐢 TurtleToy Script</button>
+      </div>
+      <div style="margin-top:10px;font-size:10px;color:rgba(255,255,255,.2);line-height:1.5">
+        Pen plotters: AxiDraw, EvilMadScientist, WaterColorBot, custom GRBL
+      </div>
+    </div>
+  </div>
+
+  <!-- Prompt Builder -->
+  <div class="prompt-area">
+    <div class="prompt-header">
+      <div class="prompt-title">AI Image Prompt Builder</div>
+      <button class="pour-btn" id="toggleSchema">Show Schema</button>
+    </div>
+    <div class="prompt-params">
+      <div class="param-group">
+        <div class="param-label">Style</div>
+        <select class="param-select" id="pStyle">
+          <option>Bioluminescent</option><option>Cosmic</option><option>Abstract</option>
+          <option>Surrealist</option><option>Watercolor</option><option>Oil Painting</option>
+          <option>Digital Art</option><option>Concept Art</option><option>Photorealistic</option>
+        </select>
+      </div>
+      <div class="param-group">
+        <div class="param-label">Material</div>
+        <select class="param-select" id="pMaterial">
+          <option>Acrylic Pour</option><option>Oil Paint</option><option>Watercolor</option>
+          <option>Fabric/Textile</option><option>Clay/Ceramic</option><option>Glass</option>
+          <option>Neon Light</option><option>Liquid Mercury</option><option>Ink</option>
+        </select>
+      </div>
+      <div class="param-group">
+        <div class="param-label">Color Palette</div>
+        <select class="param-select" id="pColors">
+          <option>Iridescent Biolume</option><option>Neon Cosmic</option><option>Warm Sunset</option>
+          <option>Deep Ocean</option><option>Monochromatic</option><option>Complementary</option>
+          <option>Pastel Soft</option><option>Dark Moody</option>
+        </select>
+      </div>
+      <div class="param-group">
+        <div class="param-label">Shape / Form</div>
+        <select class="param-select" id="pShape">
+          <option>Organic Flowing</option><option>Geometric</option><option>Fractal</option>
+          <option>Mandala / Sacred</option><option>Floral</option><option>Abstract Blob</option>
+          <option>Crystalline</option><option>Spiral / Vortex</option>
+        </select>
+      </div>
+      <div class="param-group">
+        <div class="param-label">Lighting</div>
+        <select class="param-select" id="pLight">
+          <option>Glow / Neon</option><option>Soft Diffused</option><option>Dramatic Contrast</option>
+          <option>Backlit / Rim</option><option>Subsurface Scatter</option><option>Cinematic</option>
+        </select>
+      </div>
+      <div class="param-group">
+        <div class="param-label">Size (px)</div>
+        <select class="param-select" id="pSize">
+          <option>512×512</option><option>768×768</option><option>1024×1024</option>
+          <option>1024×576</option><option>576×1024</option><option>1920×1080</option>
+        </select>
+      </div>
+      <div class="param-group">
+        <div class="param-label">Steps</div>
+        <input class="param-input" id="pSteps" type="number" min="10" max="150" value="40">
+      </div>
+      <div class="param-group">
+        <div class="param-label">CFG Scale</div>
+        <input class="param-input" id="pCfg" type="number" min="1" max="20" step="0.5" value="7.5">
+      </div>
+    </div>
+    <div class="prompt-text-row">
+      <textarea class="prompt-input" id="promptInput" rows="2" placeholder="Describe your vision… e.g. glowing coral reef in deep space, liquid light, dripping neon…"></textarea>
+      <button class="prompt-build-btn" id="btnBuildPrompt">✦ Build Prompt</button>
+    </div>
+    <div class="parse-tags" id="parseTags"></div>
+    <div class="schema-preview" id="schemaPreview"></div>
+  </div>
+
+</div>
+
+<div class="undo-toast" id="undoToast">Undo</div>
+<input type="file" id="fileImport" accept="image/*" style="display:none">
+
+<script src="drawer.js"></script>
+<script>
+/* ════════════════════════════════════════════════
+   ChromaStudio Engine
+   Canvas layers + Paint pour + Brush + Swirl + Shapes
+════════════════════════════════════════════════ */
+const studio = (function() {
+  const canvasEl = document.getElementById('studioCanvas');
+  const area = document.getElementById('canvasArea');
+  const cursor = document.getElementById('canvasCursor');
+  let ctx, W, H;
+
+  /* ── State ── */
+  let currentTool = 'brush';
+  let currentColor = '#a855f7';
+  let brushSize = 12, brushOpacity = 0.8, brushHardness = 0.7, brushFlow = 1.0;
+  let blendMode = 'source-over';
+  let pourMode = 'drip';
+  let viscosity = 0.4, gravityStr = 0.7, tension = 0.5;
+  let isDrawing = false;
+  let lastX = 0, lastY = 0;
+  let pressure = 1.0;
+
+  /* ── Layers ── */
+  let layers = [], activeLayer = 0;
+  const undoStack = [], redoStack = [];
+  const MAX_UNDO = 30;
+
+  /* ── Pour physics particles ── */
+  let pourParticles = [];
+  let pourAnimFrame = null;
+
+  /* ── Init ── */
+  function init() {
+    // Wait for layout to be fully resolved before reading dimensions
+    requestAnimationFrame(() => {
+      resize();
+      // ResizeObserver is more reliable than window.resize for inner grid cells
+      const _ro = new ResizeObserver(() => requestAnimationFrame(resize));
+      _ro.observe(area);
+
+      // Create first layer
+      addLayer('Background');
+      addLayer('Layer 1');
+      setActiveLayer(1);
+
+      // Fill bg dark
+      const bgCtx = layers[0].canvas.getContext('2d');
+      bgCtx.fillStyle = '#0a0a1a';
+      bgCtx.fillRect(0, 0, W, H);
+
+      compositeAndDraw(true);
+
+      bindCanvas();
+      bindUI();
+      initSwatches();
+      initSliders();
+      initShortcuts();
+      buildLayerUI();
+    }); // end requestAnimationFrame
+  }
+
+  function resize() {
+    W = area.offsetWidth || area.clientWidth;
+    H = area.offsetHeight || area.clientHeight;
+    if (!W || !H) { setTimeout(resize, 50); return; }
+    canvasEl.width = W;
+    canvasEl.height = H;
+    canvasEl.style.width = W + 'px';
+    canvasEl.style.height = H + 'px';
+    ctx = canvasEl.getContext('2d');
+    // Resize all layer canvases
+    layers.forEach(l => {
+      const tmp = document.createElement('canvas');
+      tmp.width = W; tmp.height = H;
+      const tc = tmp.getContext('2d');
+      tc.drawImage(l.canvas, 0, 0);
+      l.canvas = tmp;
+    });
+    compositeAndDraw(true);
+  }
+
+  /* ── Layer management ── */
+  function addLayer(name) {
+    const canvas = document.createElement('canvas');
+    canvas.width = W; canvas.height = H;
+    const layer = { canvas, name, visible: true, opacity: 1, blendMode: 'source-over' };
+    layers.push(layer);
+    buildLayerUI();
+    return layer;
+  }
+
+  function removeLayer() {
+    if (layers.length <= 1) return;
+    layers.splice(activeLayer, 1);
+    activeLayer = Math.min(activeLayer, layers.length - 1);
+    buildLayerUI();
+    compositeAndDraw();
+  }
+
+  function setActiveLayer(idx) {
+    activeLayer = Math.max(0, Math.min(layers.length - 1, idx));
+    buildLayerUI();
+  }
+
+  function buildLayerUI() {
+    const list = document.getElementById('layerList');
+    list.innerHTML = '';
+    [...layers].reverse().forEach((l, ri) => {
+      const i = layers.length - 1 - ri;
+      const item = document.createElement('div');
+      item.className = 'layer-item' + (i === activeLayer ? ' active' : '');
+      item.innerHTML = `
+        <div class="layer-thumb"><canvas width="30" height="22"></canvas></div>
+        <div class="layer-name">${l.name}</div>
+        <span class="layer-vis">${l.visible ? '👁' : '🚫'}</span>
+      `;
+      // Thumb preview
+      const th = item.querySelector('canvas');
+      if (l.canvas.width > 0 && l.canvas.height > 0) {
+        th.getContext('2d').drawImage(l.canvas, 0, 0, 30, 22);
+      }
+      item.querySelector('.layer-vis').addEventListener('click', e => {
+        e.stopPropagation(); l.visible = !l.visible;
+        compositeAndDraw(); buildLayerUI();
+      });
+      item.addEventListener('click', () => setActiveLayer(i));
+      list.appendChild(item);
+    });
+  }
+
+  function mergeLayers() {
+    if (layers.length <= 1) return;
+    const bottom = layers[Math.max(0, activeLayer - 1)];
+    const top = layers[activeLayer];
+    const bc = bottom.canvas.getContext('2d');
+    bc.save(); bc.globalAlpha = top.opacity; bc.globalCompositeOperation = top.blendMode;
+    bc.drawImage(top.canvas, 0, 0); bc.restore();
+    layers.splice(activeLayer, 1);
+    activeLayer = Math.max(0, activeLayer - 1);
+    buildLayerUI(); compositeAndDraw();
+  }
+
+  /* ── Composite all layers to display canvas ── */
+  let _layerUITimer = null;
+  function scheduledLayerUI() {
+    clearTimeout(_layerUITimer);
+    _layerUITimer = setTimeout(buildLayerUI, 80);
+  }
+
+  function compositeAndDraw(rebuildUI) {
+    if (!ctx || !W || !H) return;
+    ctx.clearRect(0, 0, W, H);
+    // Visible background — slightly lighter than page so canvas boundary is clear
+    ctx.fillStyle = '#0d0d24';
+    ctx.fillRect(0, 0, W, H);
+    // Subtle grid overlay for spatial reference
+    ctx.strokeStyle = 'rgba(168,85,247,0.04)';
+    ctx.lineWidth = 1;
+    const gs = 40;
+    for (let x = 0; x < W; x += gs) { ctx.beginPath(); ctx.moveTo(x,0); ctx.lineTo(x,H); ctx.stroke(); }
+    for (let y = 0; y < H; y += gs) { ctx.beginPath(); ctx.moveTo(0,y); ctx.lineTo(W,y); ctx.stroke(); }
+    layers.forEach(l => {
+      if (!l.visible) return;
+      ctx.save();
+      ctx.globalAlpha = l.opacity;
+      ctx.globalCompositeOperation = l.blendMode;
+      ctx.drawImage(l.canvas, 0, 0);
+      ctx.restore();
+    });
+    // Only rebuild layer UI when explicitly needed (layer changes), throttled
+    if (rebuildUI) scheduledLayerUI();
+  }
+
+  /* ── Get active layer context ── */
+  function getLayerCtx() {
+    if (!layers[activeLayer]) return ctx;
+    return layers[activeLayer].canvas.getContext('2d');
+  }
+
+  /* ── Undo/Redo ── */
+  function saveState() {
+    const snapshot = ctx.createImageData(W, H);
+    // Capture current composite
+    snapshot.data.set(ctx.getImageData(0, 0, W, H).data);
+    // Also capture the active layer
+    const lc = getLayerCtx();
+    const layerSnap = lc.getImageData(0, 0, W, H);
+    undoStack.push(layerSnap);
+    if (undoStack.length > MAX_UNDO) undoStack.shift();
+    redoStack.length = 0;
+  }
+
+  function undo() {
+    if (!undoStack.length) return;
+    const lc = getLayerCtx();
+    redoStack.push(lc.getImageData(0, 0, W, H));
+    lc.putImageData(undoStack.pop(), 0, 0);
+    compositeAndDraw();
+    showToast('Undone');
+  }
+
+  function redo() {
+    if (!redoStack.length) return;
+    const lc = getLayerCtx();
+    undoStack.push(lc.getImageData(0, 0, W, H));
+    lc.putImageData(redoStack.pop(), 0, 0);
+    compositeAndDraw();
+    showToast('Redone');
+  }
+
+  function showToast(msg) {
+    const t = document.getElementById('undoToast');
+    t.textContent = msg; t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), 1200);
+  }
+
+  /* ── Drawing ── */
+  function startDraw(e) {
+    const { x, y } = getPos(e);
+    isDrawing = true; lastX = x; lastY = y;
+    saveState();
+    if (currentTool === 'pour') { startPour(x, y); return; }
+    if (currentTool === 'fill') { floodFill(x, y); return; }
+    if (currentTool === 'stamp') { drawStamp(x, y); return; }
+    draw(x, y);
+  }
+
+  function moveDraw(e) {
+    const { x, y } = getPos(e);
+    updateCursor(x, y);
+    if (!isDrawing) return;
+    if (currentTool === 'pour') { addPourDrop(x, y); return; }
+    if (currentTool === 'swirl') { applySwirlAt(x, y, lastX, lastY); lastX = x; lastY = y; compositeAndDraw(); return; }
+    draw(x, y);
+    lastX = x; lastY = y;
+  }
+
+  function endDraw() {
+    isDrawing = false;
+    compositeAndDraw();
+  }
+
+  function getPos(e) {
+    const r = canvasEl.getBoundingClientRect();
+    const ev = e.touches ? e.touches[0] : e;
+    return { x: ev.clientX - r.left, y: ev.clientY - r.top };
+  }
+
+  function updateCursor(x, y) {
+    cursor.style.left = x + 'px'; cursor.style.top = y + 'px';
+    const size = brushSize + 4;
+    cursor.style.width = size + 'px'; cursor.style.height = size + 'px';
+    cursor.style.marginLeft = -size/2 + 'px'; cursor.style.marginTop = -size/2 + 'px';
+  }
+
+  /* ── Brush paint ── */
+  function draw(x, y) {
+    const lc = getLayerCtx();
+    lc.save();
+    lc.globalCompositeOperation = currentTool === 'eraser' ? 'destination-out' : blendMode;
+    lc.globalAlpha = brushOpacity * brushFlow;
+    lc.lineCap = 'round'; lc.lineJoin = 'round';
+    lc.lineWidth = brushSize;
+
+    if (brushHardness < 0.9 && currentTool !== 'eraser') {
+      // Soft brush via radial gradient
+      const r = Math.max(brushSize / 2, 0.5);
+      const innerR = Math.max(r * brushHardness, 0);
+      if (!isFinite(r) || !isFinite(x) || !isFinite(y)) return;
+      const grd = lc.createRadialGradient(x, y, innerR < r ? innerR : 0, x, y, r);
+      grd.addColorStop(0, hexToRgba(currentColor, 1));
+      grd.addColorStop(1, hexToRgba(currentColor, 0));
+      lc.fillStyle = grd;
+      lc.beginPath(); lc.arc(x, y, r, 0, Math.PI * 2); lc.fill();
+      // Also connect to last point
+      const steps = Math.ceil(Math.hypot(x - lastX, y - lastY) / (r * 0.3));
+      for (let s = 0; s <= steps; s++) {
+        const ix = lastX + (x - lastX) * s / steps;
+        const iy = lastY + (y - lastY) * s / steps;
+        if (!isFinite(ix) || !isFinite(iy)) continue;
+        const g2 = lc.createRadialGradient(ix, iy, Math.min(innerR, r*0.99), ix, iy, r);
+        g2.addColorStop(0, hexToRgba(currentColor, 0.4));
+        g2.addColorStop(1, hexToRgba(currentColor, 0));
+        lc.fillStyle = g2;
+        lc.beginPath(); lc.arc(ix, iy, r, 0, Math.PI*2); lc.fill();
+      }
+    } else {
+      lc.strokeStyle = currentTool === 'eraser' ? 'rgba(0,0,0,1)' : currentColor;
+      lc.beginPath(); lc.moveTo(lastX, lastY); lc.lineTo(x, y); lc.stroke();
+    }
+
+    // Shape tools
+    if (currentTool === 'rect' || currentTool === 'ellipse' || currentTool === 'line') {
+      lc.strokeStyle = currentColor; lc.lineWidth = brushSize / 3;
+      lc.fillStyle = hexToRgba(currentColor, 0.15);
+    }
+    lc.restore();
+    compositeAndDraw();
+  }
+
+  /* ── Flood fill ── */
+  function floodFill(sx, sy) {
+    // If a rectangular grid overlay is active, fill only the clicked grid cell
+    const geo = window._studioGeo?.activeGeo;
+    if (geo && geo !== 'none') {
+      const cell = getGridCell(sx, sy, geo);
+      if (cell) {
+        const lc = getLayerCtx();
+        lc.save();
+        lc.globalAlpha = brushOpacity;
+        lc.globalCompositeOperation = blendMode;
+        lc.fillStyle = currentColor;
+        lc.fillRect(cell.x, cell.y, cell.w, cell.h);
+        lc.restore();
+        compositeAndDraw();
+        return;
+      }
+    }
+    // Standard flood fill
+    const lc = getLayerCtx();
+    const imgData = lc.getImageData(0, 0, W, H);
+    const d = imgData.data;
+    const fillColor = hexToRgbArray(currentColor);
+    const idx = (Math.round(sy) * W + Math.round(sx)) * 4;
+    const target = [d[idx], d[idx+1], d[idx+2], d[idx+3]];
+    if (colorMatch(fillColor, target)) return;
+    const stack = [[Math.round(sx), Math.round(sy)]];
+    const visited = new Uint8Array(W * H);
+    while (stack.length) {
+      const [x, y] = stack.pop();
+      if (x < 0 || x >= W || y < 0 || y >= H) continue;
+      const i = (y * W + x) * 4;
+      if (visited[y*W+x] || !colorMatch([d[i],d[i+1],d[i+2],d[i+3]], target)) continue;
+      visited[y*W+x] = 1;
+      d[i]=fillColor[0]; d[i+1]=fillColor[1]; d[i+2]=fillColor[2]; d[i+3]=Math.round(brushOpacity*255);
+      stack.push([x+1,y],[x-1,y],[x,y+1],[x,y-1]);
+    }
+    lc.putImageData(imgData, 0, 0);
+    compositeAndDraw();
+  }
+
+  /* ── Grid cell resolver — returns {x,y,w,h} for the clicked cell based on active overlay ── */
+  function getGridCell(sx, sy, geo) {
+    if (geo === 'phi-grid') {
+      const phi = 1.61803398875;
+      const rx = W / (phi + 1);
+      const ry = H / (phi + 1);
+      const cols = [0, rx, W - rx, W];
+      const rows = [0, ry, H - ry, H];
+      let x0 = 0, x1 = W, y0 = 0, y1 = H;
+      for (let i = 0; i < cols.length - 1; i++) { if (sx >= cols[i] && sx < cols[i+1]) { x0 = cols[i]; x1 = cols[i+1]; break; } }
+      for (let i = 0; i < rows.length - 1; i++) { if (sy >= rows[i] && sy < rows[i+1]) { y0 = rows[i]; y1 = rows[i+1]; break; } }
+      return { x: x0, y: y0, w: x1 - x0, h: y1 - y0 };
+    }
+    if (geo === 'fibonacci') {
+      // Fibonacci uses a 40px base grid aligned to canvas
+      const gs = 40;
+      const x0 = Math.floor(sx / gs) * gs, y0 = Math.floor(sy / gs) * gs;
+      return { x: x0, y: y0, w: gs, h: gs };
+    }
+    // Other overlays (flower, metatron, vesica, seed) are not grid-based — fall through to flood fill
+    return null;
+  }
+
+  function colorMatch(a, b, tol=32) {
+    return Math.abs(a[0]-b[0])<tol && Math.abs(a[1]-b[1])<tol && Math.abs(a[2]-b[2])<tol;
+  }
+
+  /* ── Stamp ── */
+  function drawStamp(x, y) {
+    const lc = getLayerCtx();
+    lc.save();
+    lc.translate(x, y);
+    lc.globalAlpha = brushOpacity;
+    const r = brushSize * 2;
+    // Glowing star stamp
+    const pts = 6;
+    lc.beginPath();
+    for (let p = 0; p < pts * 2; p++) {
+      const angle = (p / (pts*2)) * Math.PI * 2 - Math.PI/2;
+      const rad = p % 2 === 0 ? r : r * 0.4;
+      p === 0 ? lc.moveTo(Math.cos(angle)*rad, Math.sin(angle)*rad) : lc.lineTo(Math.cos(angle)*rad, Math.sin(angle)*rad);
+    }
+    lc.closePath();
+    const g = lc.createRadialGradient(0, 0, 0, 0, 0, r);
+    g.addColorStop(0, currentColor); g.addColorStop(1, hexToRgba(currentColor, 0));
+    lc.fillStyle = g; lc.fill();
+    lc.shadowColor = currentColor; lc.shadowBlur = r;
+    lc.strokeStyle = currentColor; lc.lineWidth = 1; lc.stroke();
+    lc.restore();
+    compositeAndDraw();
+  }
+
+  /* ════════════════════════════════
+     PAINT POUR PHYSICS
+  ════════════════════════════════ */
+  function startPour(x, y) {
+    stopPour();
+    const colors = [currentColor, shiftHue(currentColor, 40), shiftHue(currentColor, 80), shiftHue(currentColor, 140), '#ffffff'];
+    if (pourMode === 'drip') {
+      for (let i = 0; i < 6; i++) {
+        pourParticles.push({
+          x: x + (Math.random()-0.5)*brushSize*2,
+          y, vx: (Math.random()-0.5)*1.5, vy: Math.random()*1.5 + 0.5,
+          color: colors[i % colors.length],
+          r: brushSize*0.3 + Math.random()*brushSize*0.5,
+          alpha: 0.7 + Math.random()*0.3,
+          life: 1.0, trail: []
+        });
+      }
+    } else if (pourMode === 'flood') {
+      for (let i = 0; i < 20; i++) {
+        const angle = Math.random()*Math.PI*2;
+        pourParticles.push({
+          x, y, vx: Math.cos(angle)*(Math.random()*3), vy: Math.sin(angle)*(Math.random()*3),
+          color: colors[i % colors.length], r: brushSize*0.4 + Math.random()*brushSize*0.6,
+          alpha: 0.6, life: 1.0, trail: []
+        });
+      }
+    } else if (pourMode === 'splatter') {
+      for (let i = 0; i < 30; i++) {
+        const angle = Math.random()*Math.PI*2, speed = Math.random()*8+2;
+        pourParticles.push({
+          x, y, vx: Math.cos(angle)*speed, vy: Math.sin(angle)*speed,
+          color: colors[i % colors.length], r: 1+Math.random()*brushSize*0.4,
+          alpha: 0.8, life: 1.0, trail: []
+        });
+      }
+    } else if (pourMode === 'marbling') {
+      for (let i = 0; i < 15; i++) {
+        pourParticles.push({
+          x: x + (Math.random()-0.5)*W*0.3, y: y + (Math.random()-0.5)*20,
+          vx: (Math.random()-0.5)*2, vy: gravityStr * 0.8,
+          color: colors[i % colors.length], r: brushSize*0.15 + Math.random()*brushSize*0.2,
+          alpha: 0.6, life: 1.0, trail: [], marbling: true
+        });
+      }
+    }
+    animatePour();
+  }
+
+  function addPourDrop(x, y) {
+    const colors = [currentColor, shiftHue(currentColor, 60), shiftHue(currentColor, 120)];
+    pourParticles.push({
+      x, y, vx: (Math.random()-0.5)*1, vy: Math.random()*2+0.3,
+      color: colors[Math.floor(Math.random()*colors.length)],
+      r: brushSize*0.2 + Math.random()*brushSize*0.3,
+      alpha: 0.75, life: 1.0, trail: []
+    });
+  }
+
+  function animatePour() {
+    if (pourParticles.length === 0) return;
+    const lc = getLayerCtx();
+    lc.save();
+
+    pourParticles = pourParticles.filter(p => p.life > 0.01);
+    pourParticles.forEach(p => {
+      // Physics
+      p.vy += gravityStr * 0.12;
+      p.vx *= 1 - (1-viscosity) * 0.04;
+      p.vy *= 1 - (1-viscosity) * 0.02;
+
+      if (p.marbling) {
+        // Marbling: interact with other particles
+        pourParticles.forEach(q => {
+          if (p === q) return;
+          const dx = p.x - q.x, dy = p.y - q.y;
+          const dist = Math.hypot(dx, dy);
+          if (dist < 30 && dist > 0.1) {
+            p.vx += dx/dist * tension * 0.3;
+            p.vy += dy/dist * tension * 0.3;
+          }
+        });
+      }
+
+      p.x += p.vx; p.y += p.vy;
+      p.trail.push({ x: p.x, y: p.y });
+      if (p.trail.length > 20) p.trail.shift();
+      p.life -= 0.012;
+
+      // Bounce off edges
+      if (p.x < p.r) { p.x = p.r; p.vx = Math.abs(p.vx) * 0.5; }
+      if (p.x > W-p.r) { p.x = W-p.r; p.vx = -Math.abs(p.vx) * 0.5; }
+      if (p.y > H) { p.y = H; p.vy *= -0.2; p.life -= 0.08; }
+
+      // Draw trail
+      lc.globalAlpha = p.alpha * p.life;
+      lc.globalCompositeOperation = blendMode;
+      if (p.trail.length > 2) {
+        lc.beginPath();
+        lc.moveTo(p.trail[0].x, p.trail[0].y);
+        for (let i = 1; i < p.trail.length; i++) {
+          const mid = { x: (p.trail[i-1].x + p.trail[i].x)/2, y: (p.trail[i-1].y + p.trail[i].y)/2 };
+          lc.quadraticCurveTo(p.trail[i-1].x, p.trail[i-1].y, mid.x, mid.y);
+        }
+        const trailGrad = lc.createLinearGradient(p.trail[0].x, p.trail[0].y, p.x, p.y);
+        trailGrad.addColorStop(0, hexToRgba(p.color, 0));
+        trailGrad.addColorStop(1, hexToRgba(p.color, p.alpha * p.life));
+        lc.strokeStyle = trailGrad;
+        lc.lineWidth = p.r * 1.8;
+        lc.lineCap = 'round'; lc.lineJoin = 'round';
+        lc.stroke();
+      }
+      // Draw blob head
+      const g = lc.createRadialGradient(p.x-p.r*0.2, p.y-p.r*0.2, 0, p.x, p.y, p.r*2);
+      g.addColorStop(0, hexToRgba(p.color, 0.9));
+      g.addColorStop(0.5, hexToRgba(p.color, 0.5));
+      g.addColorStop(1, hexToRgba(p.color, 0));
+      lc.beginPath(); lc.arc(p.x, p.y, p.r*2, 0, Math.PI*2);
+      lc.fillStyle = g; lc.fill();
+    });
+
+    lc.restore();
+    compositeAndDraw();
+    pourAnimFrame = requestAnimationFrame(animatePour);
+  }
+
+  function stopPour() {
+    if (pourAnimFrame) { cancelAnimationFrame(pourAnimFrame); pourAnimFrame = null; }
+    pourParticles = [];
+  }
+
+  /* ════════════════════════════════
+     SWIRL TOOL
+  ════════════════════════════════ */
+  function applySwirlAt(x, y, lx, ly) {
+    const lc = getLayerCtx();
+    const radius = brushSize * 4;
+    const strength = 8;
+    const imgData = lc.getImageData(0, 0, W, H);
+    const src = new Uint8ClampedArray(imgData.data);
+    const dx = x - lx, dy = y - ly;
+    const dist = Math.hypot(dx, dy);
+    if (dist < 0.1) return;
+
+    for (let py = Math.max(0,y-radius); py < Math.min(H,y+radius); py++) {
+      for (let px = Math.max(0,x-radius); px < Math.min(W,x+radius); px++) {
+        const d = Math.hypot(px-x, py-y);
+        if (d >= radius) continue;
+        const falloff = (1 - d/radius) ** 2;
+        const angle = Math.atan2(dy, dx) + Math.PI/2;
+        const swx = px + Math.cos(angle) * strength * falloff;
+        const swy = py + Math.sin(angle) * strength * falloff;
+        const srcX = Math.max(0, Math.min(W-1, Math.round(swx)));
+        const srcY = Math.max(0, Math.min(H-1, Math.round(swy)));
+        const si = (srcY*W + srcX)*4;
+        const di = (py*W + px)*4;
+        imgData.data[di]   = src[si];
+        imgData.data[di+1] = src[si+1];
+        imgData.data[di+2] = src[si+2];
+        imgData.data[di+3] = src[si+3];
+      }
+    }
+    lc.putImageData(imgData, 0, 0);
+  }
+
+  /* ── Canvas event bindings ── */
+  function bindCanvas() {
+    canvasEl.addEventListener('mousedown', startDraw);
+    canvasEl.addEventListener('mousemove', moveDraw);
+    canvasEl.addEventListener('mouseup', endDraw);
+    canvasEl.addEventListener('mouseleave', endDraw);
+    canvasEl.addEventListener('touchstart', e => { e.preventDefault(); startDraw(e); }, { passive: false });
+    canvasEl.addEventListener('touchmove', e => { e.preventDefault(); moveDraw(e); }, { passive: false });
+    canvasEl.addEventListener('touchend', endDraw);
+
+    // Drag and drop images onto canvas
+    canvasEl.addEventListener('dragover', e => { e.preventDefault(); e.dataTransfer.dropEffect = 'copy'; canvasEl.style.outline = '2px dashed rgba(168,85,247,0.8)'; });
+    canvasEl.addEventListener('dragleave', () => { canvasEl.style.outline = ''; });
+    canvasEl.addEventListener('drop', e => {
+      e.preventDefault();
+      canvasEl.style.outline = '';
+      const file = Array.from(e.dataTransfer.files).find(f => f.type.startsWith('image/'));
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = ev => {
+        const img = new Image();
+        img.onload = () => {
+          saveState();
+          addLayer('Drop');
+          setActiveLayer(layers.length - 1);
+          const lc = getLayerCtx();
+          const scale = Math.min(W / img.width, H / img.height, 1);
+          const iw = img.width * scale, ih = img.height * scale;
+          lc.drawImage(img, (W - iw) / 2, (H - ih) / 2, iw, ih);
+          compositeAndDraw(true);
+          showToast('Image dropped onto new layer');
+        };
+        img.src = ev.target.result;
+      };
+      reader.readAsDataURL(file);
+    });
+  }
+
+  /* ── UI bindings ── */
+  function bindUI() {
+    // Tool buttons
+    document.querySelectorAll('.tool-btn[data-tool]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.tool-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        currentTool = btn.dataset.tool;
+        const pourCtrl = document.getElementById('pourControls');
+        if (currentTool === 'pour') pourCtrl.classList.add('visible');
+        else { pourCtrl.classList.remove('visible'); stopPour(); }
+        updateCursorStyle();
+      });
+    });
+
+    document.getElementById('btnUndo').addEventListener('click', undo);
+    document.getElementById('btnRedo').addEventListener('click', redo);
+    document.getElementById('btnAddLayer').addEventListener('click', () => { addLayer('Layer ' + (layers.length+1)); setActiveLayer(layers.length-1); });
+    document.getElementById('btnDelLayer').addEventListener('click', removeLayer);
+    document.getElementById('btnMerge').addEventListener('click', mergeLayers);
+
+    // Pour mode
+    document.querySelectorAll('.pour-btn[data-pour]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.pour-btn[data-pour]').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        pourMode = btn.dataset.pour;
+      });
+    });
+
+    // Color picker
+    document.getElementById('colorPicker').addEventListener('input', e => {
+      currentColor = e.target.value;
+      document.querySelectorAll('.swatch').forEach(s => s.classList.remove('active'));
+    });
+
+    // Blend mode
+    document.getElementById('blendMode').addEventListener('change', e => { blendMode = e.target.value; });
+
+    // Import
+    document.getElementById('btnImport').addEventListener('click', () => document.getElementById('fileImport').click());
+    document.getElementById('fileImport').addEventListener('change', e => {
+      const file = e.target.files[0]; if (!file) return;
+      const img = new Image();
+      img.onload = () => {
+        addLayer('Import');
+        setActiveLayer(layers.length - 1);
+        const lc = getLayerCtx();
+        const scale = Math.min(W / img.width, H / img.height, 1);
+        const iw = img.width * scale, ih = img.height * scale;
+        lc.drawImage(img, (W-iw)/2, (H-ih)/2, iw, ih);
+        compositeAndDraw();
+      };
+      img.src = URL.createObjectURL(file);
+    });
+
+    // Prompt builder
+    document.getElementById('btnBuildPrompt').addEventListener('click', buildPrompt);
+    document.getElementById('toggleSchema').addEventListener('click', () => {
+      const el = document.getElementById('schemaPreview');
+      el.classList.toggle('visible');
+      document.getElementById('toggleSchema').textContent = el.classList.contains('visible') ? 'Hide Schema' : 'Show Schema';
+    });
+  }
+
+  function updateCursorStyle() {
+    const toolCursors = { brush: 'crosshair', eraser: 'cell', pour: 'crosshair', swirl: 'move', fill: 'copy', select: 'default' };
+    canvasEl.style.cursor = toolCursors[currentTool] || 'crosshair';
+  }
+
+  /* ── Swatches ── */
+  function initSwatches() {
+    const colors = [
+      '#a855f7','#ec4899','#22d3ee','#f97316','#10b981','#6366f1','#f59e0b','#ef4444',
+      '#ffffff','#d1d5db','#6b7280','#1f2937','#000000','#fbbf24','#34d399','#60a5fa',
+    ];
+    const grid = document.getElementById('swatchGrid');
+    colors.forEach(c => {
+      const sw = document.createElement('div');
+      sw.className = 'swatch' + (c === currentColor ? ' active' : '');
+      sw.style.background = c;
+      sw.addEventListener('click', () => {
+        currentColor = c;
+        document.getElementById('colorPicker').value = c;
+        document.querySelectorAll('.swatch').forEach(s => s.classList.remove('active'));
+        sw.classList.add('active');
+      });
+      grid.appendChild(sw);
+    });
+  }
+
+  /* ── Sliders ── */
+  function initSliders() {
+    function bind(id, cb, valId, fmt) {
+      const el = document.getElementById(id);
+      if (!el) return;
+      el.addEventListener('input', () => {
+        cb(+el.value);
+        if (valId) document.getElementById(valId).textContent = fmt ? fmt(+el.value) : el.value;
+        const pct = ((+el.value - +el.min) / (+el.max - +el.min)) * 100;
+        el.style.setProperty('--pct', pct + '%');
+      });
+      const pct = ((+el.value - +el.min) / (+el.max - +el.min)) * 100;
+      el.style.setProperty('--pct', pct + '%');
+    }
+    bind('brushSize',    v => brushSize = v,     'sizeVal');
+    bind('brushOpacity', v => brushOpacity = v/100, 'opacVal', v => v+'%');
+    bind('brushHard',    v => brushHardness = v/100,'hardVal', v => v+'%');
+    bind('brushFlow',    v => brushFlow = v/100,  'flowVal', v => v+'%');
+    bind('viscosity',    v => viscosity = v/100,  'viscVal', v => v+'%');
+    bind('gravity',      v => gravityStr = v/100, 'gravVal', v => v+'%');
+    bind('tension',      v => tension = v/100,    'tensVal', v => v+'%');
+  }
+
+  /* ── Keyboard shortcuts ── */
+  function initShortcuts() {
+    document.addEventListener('keydown', e => {
+      if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+      const map = { b:'brush', e:'eraser', p:'pour', s:'swirl', f:'fill' };
+      if (map[e.key]) {
+        document.querySelector(`[data-tool="${map[e.key]}"]`)?.click();
+      }
+      if ((e.ctrlKey || e.metaKey) && e.key === 'z') { e.preventDefault(); undo(); }
+      if ((e.ctrlKey || e.metaKey) && (e.key === 'y' || (e.shiftKey && e.key === 'z'))) { e.preventDefault(); redo(); }
+      if (e.key === '[') brushSize = Math.max(1, brushSize - 2);
+      if (e.key === ']') brushSize = Math.min(120, brushSize + 2);
+    });
+  }
+
+  /* ── Prompt builder ── */
+  function buildPrompt() {
+    const style = document.getElementById('pStyle').value;
+    const material = document.getElementById('pMaterial').value;
+    const colors = document.getElementById('pColors').value;
+    const shape = document.getElementById('pShape').value;
+    const light = document.getElementById('pLight').value;
+    const size = document.getElementById('pSize').value;
+    const steps = document.getElementById('pSteps').value;
+    const cfg = document.getElementById('pCfg').value;
+    const userText = document.getElementById('promptInput').value.trim();
+
+    const styleMap = {
+      'Bioluminescent': 'bioluminescent neon, glowing organic forms, deep space atmosphere',
+      'Cosmic': 'cosmic nebula, galactic scale, stellar phenomena, aurora borealis',
+      'Abstract': 'abstract expressionist, gestural marks, chromatic fields',
+      'Watercolor': 'loose watercolor washes, wet-on-wet blooms, translucent layers',
+      'Oil Painting': 'impasto oil paint, rich textured brushwork, museum quality',
+    };
+    const styleStr = styleMap[style] || style.toLowerCase();
+
+    const fullPrompt = [
+      userText || 'ethereal flowing composition',
+      styleStr,
+      `${material.toLowerCase()} medium`,
+      `${colors.toLowerCase()} color scheme`,
+      `${shape.toLowerCase()} forms`,
+      `${light.toLowerCase()} lighting`,
+      `masterwork, ultra-detailed, 8k resolution, award-winning digital art`,
+      `negative: blurry, low quality, watermark, text`
+    ].join(', ');
+
+    document.getElementById('promptInput').value = fullPrompt;
+
+    const schema = {
+      prompt: fullPrompt,
+      negative_prompt: 'blurry, low quality, watermark, text, signature',
+      width: parseInt(size.split('×')[0]),
+      height: parseInt(size.split('×')[1]),
+      num_inference_steps: parseInt(steps),
+      guidance_scale: parseFloat(cfg),
+      scheduler: 'DPMSolverMultistep',
+      seed: Math.floor(Math.random() * 999999),
+    };
+
+    const preview = document.getElementById('schemaPreview');
+    preview.textContent = JSON.stringify(schema, null, 2);
+    preview.classList.add('visible');
+    document.getElementById('toggleSchema').textContent = 'Hide Schema';
+  }
+
+  /* ── Export ── */
+  function exportCanvas() {
+    const exp = document.createElement('canvas');
+    exp.width = W; exp.height = H;
+    const ec = exp.getContext('2d');
+    layers.forEach(l => { if (l.visible) { ec.save(); ec.globalAlpha = l.opacity; ec.globalCompositeOperation = l.blendMode; ec.drawImage(l.canvas,0,0); ec.restore(); }});
+    exp.toBlob(blob => {
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = 'chromaflora-studio.png';
+      a.click();
+    });
+  }
+
+  function clearAll() {
+    saveState();
+    layers.forEach(l => { const lc = l.canvas.getContext('2d'); lc.clearRect(0,0,W,H); });
+    const bgCtx = layers[0].canvas.getContext('2d');
+    bgCtx.fillStyle = '#0a0a1a'; bgCtx.fillRect(0,0,W,H);
+    compositeAndDraw();
+  }
+
+  /* ── Color utils ── */
+  function hexToRgba(hex, alpha) {
+    const r = parseInt(hex.slice(1,3),16), g = parseInt(hex.slice(3,5),16), b = parseInt(hex.slice(5,7),16);
+    return `rgba(${r},${g},${b},${alpha})`;
+  }
+  function hexToRgbArray(hex) {
+    return [parseInt(hex.slice(1,3),16), parseInt(hex.slice(3,5),16), parseInt(hex.slice(5,7),16)];
+  }
+  function shiftHue(hex, shift) {
+    let [r,g,b] = hexToRgbArray(hex);
+    r/=255; g/=255; b/=255;
+    const max=Math.max(r,g,b), min=Math.min(r,g,b), l=(max+min)/2;
+    let h,s;
+    if (max===min) { h=s=0; } else {
+      const d=max-min; s=l>0.5?d/(2-max-min):d/(max+min);
+      h=max===r?(g-b)/d+(g<b?6:0):max===g?(b-r)/d+2:(r-g)/d+4; h/=6;
+    }
+    h=(h*360+shift)%360/360;
+    function hue2rgb(p,q,t){if(t<0)t+=1;if(t>1)t-=1;if(t<1/6)return p+(q-p)*6*t;if(t<1/2)return q;if(t<2/3)return p+(q-p)*(2/3-t)*6;return p;}
+    const q=l<0.5?l*(1+s):l+s-l*s, p=2*l-q;
+    const nr=Math.round(hue2rgb(p,q,h+1/3)*255), ng=Math.round(hue2rgb(p,q,h)*255), nb=Math.round(hue2rgb(p,q,h-1/3)*255);
+    return '#'+[nr,ng,nb].map(v=>v.toString(16).padStart(2,'0')).join('');
+  }
+
+  init();
+
+  // ── Load remix from gallery ──
+  (function loadRemix() {
+    if (!location.search.includes('remix')) return;
+    const data = sessionStorage.getItem('cf_remix');
+    if (!data) return;
+    try {
+      const remix = JSON.parse(data);
+      sessionStorage.removeItem('cf_remix');
+      if (remix.dataUrl) {
+        const img = new Image();
+        img.onload = () => {
+          const lc = layers[activeLayer].canvas.getContext('2d');
+          lc.drawImage(img, 0, 0, W, H);
+          compositeAndDraw();
+          // Show remix banner
+          const banner = document.createElement('div');
+          banner.style.cssText = 'position:fixed;top:70px;left:50%;transform:translateX(-50%);background:linear-gradient(135deg,rgba(34,211,238,0.9),rgba(168,85,247,0.9));color:white;padding:10px 24px;border-radius:12px;font-size:13px;font-weight:700;z-index:999;pointer-events:none';
+          banner.textContent = `✦ Remixing @${remix.source||'creator'}'s artwork`;
+          document.body.appendChild(banner);
+          setTimeout(() => banner.remove(), 3500);
+        };
+        img.src = remix.dataUrl;
+      }
+      if (remix.prompt) {
+        const ta = document.getElementById('promptInput');
+        if (ta) ta.value = `Remix of: ${remix.prompt}`;
+      }
+    } catch(e) {}
+  })();
+
+  // Expose internals for preset apply and math engine
+  window._studioLayers = {
+    get W() { return W; },
+    get H() { return H; },
+    getLayerCtx,
+    composite: () => compositeAndDraw(),
+  };
+
+  return { export: exportCanvas, clear: clearAll };
+})();
+
+/* ══════════════════════════════════════════════════════════════
+   CHROMAFLORA ART STYLE PRESETS
+   12 unique procedural styles — each renders directly to canvas
+══════════════════════════════════════════════════════════════ */
+const CF_PRESETS = [
+  {
+    id: 'void-crystal',
+    name: 'Void Crystal',
+    params: { style:'Bioluminescent', material:'Glass', colors:'Monochromatic', shape:'Crystalline', light:'Dramatic Contrast' },
+    render(ctx, W, H) {
+      ctx.fillStyle = '#000008'; ctx.fillRect(0,0,W,H);
+      const N = 18 + Math.floor(Math.random()*12);
+      for (let i=0;i<N;i++) {
+        const cx=Math.random()*W, cy=Math.random()*H;
+        const n=5+Math.floor(Math.random()*4), r=20+Math.random()*80;
+        ctx.save(); ctx.translate(cx,cy); ctx.rotate(Math.random()*Math.PI*2);
+        ctx.beginPath();
+        for (let k=0;k<n*2;k++) {
+          const ra = k%2===0?r:r*0.35, a=(k/n/2)*Math.PI*2;
+          k===0?ctx.moveTo(Math.cos(a)*ra,Math.sin(a)*ra):ctx.lineTo(Math.cos(a)*ra,Math.sin(a)*ra);
+        }
+        ctx.closePath();
+        const g=ctx.createLinearGradient(-r,-r,r,r);
+        g.addColorStop(0,`hsla(${190+Math.random()*30},90%,70%,${0.1+Math.random()*0.25})`);
+        g.addColorStop(1,`hsla(${220+Math.random()*30},80%,55%,0)`);
+        ctx.fillStyle=g; ctx.fill();
+        ctx.strokeStyle=`hsla(${180+Math.random()*40},100%,75%,${0.3+Math.random()*0.5})`;
+        ctx.lineWidth=0.8; ctx.stroke();
+        ctx.restore();
+      }
+      for (let i=0;i<60;i++) {
+        const x=Math.random()*W, y=Math.random()*H;
+        ctx.beginPath(); ctx.arc(x,y,Math.random()*1.5,0,Math.PI*2);
+        ctx.fillStyle=`rgba(${180+Math.random()*75},${220+Math.random()*35},255,${0.4+Math.random()*0.5})`; ctx.fill();
+      }
+    }
+  },
+  {
+    id: 'nebula-flow',
+    name: 'Nebula Flow',
+    params: { style:'Cosmic', material:'Acrylic Pour', colors:'Iridescent Biolume', shape:'Organic Flowing', light:'Glow / Neon' },
+    render(ctx, W, H) {
+      const bg=ctx.createRadialGradient(W*0.3,H*0.4,0,W*0.5,H*0.5,Math.max(W,H)*0.8);
+      bg.addColorStop(0,'#120824'); bg.addColorStop(0.5,'#080416'); bg.addColorStop(1,'#020208');
+      ctx.fillStyle=bg; ctx.fillRect(0,0,W,H);
+      const ribbons=[['#a855f7','#ec4899'],['#22d3ee','#6366f1'],['#f97316','#a855f7'],['#10b981','#22d3ee']];
+      ribbons.forEach(([c1,c2],ri) => {
+        for (let i=0;i<3;i++) {
+          const pts=[]; let cx=Math.random()*W, cy=Math.random()*H;
+          for (let s=0;s<8;s++) { pts.push([cx,cy]); cx+=(Math.random()-0.5)*W*0.25; cy+=(Math.random()-0.5)*H*0.25; cx=Math.max(0,Math.min(W,cx)); cy=Math.max(0,Math.min(H,cy)); }
+          ctx.beginPath(); ctx.moveTo(pts[0][0],pts[0][1]);
+          for (let s=1;s<pts.length-1;s++) ctx.quadraticCurveTo(pts[s][0],pts[s][1],(pts[s][0]+pts[s+1][0])/2,(pts[s][1]+pts[s+1][1])/2);
+          const g=ctx.createLinearGradient(pts[0][0],pts[0][1],pts[pts.length-1][0],pts[pts.length-1][1]);
+          g.addColorStop(0,c1+Math.round((0.05+Math.random()*0.12)*255).toString(16).padStart(2,'0'));
+          g.addColorStop(1,c2+Math.round((0.05+Math.random()*0.12)*255).toString(16).padStart(2,'0'));
+          ctx.strokeStyle=g; ctx.lineWidth=20+Math.random()*50; ctx.globalAlpha=0.18+Math.random()*0.14; ctx.stroke(); ctx.globalAlpha=1;
+        }
+      });
+      for (let i=0;i<80;i++) {
+        const x=Math.random()*W,y=Math.random()*H,r=Math.random()*2;
+        ctx.beginPath(); ctx.arc(x,y,r,0,Math.PI*2);
+        ctx.fillStyle=`rgba(200,180,255,${0.3+Math.random()*0.6})`; ctx.fill();
+      }
+    }
+  },
+  {
+    id: 'acid-pour',
+    name: 'Acid Pour',
+    params: { style:'Abstract', material:'Acrylic Pour', colors:'Neon Cosmic', shape:'Abstract Blob', light:'Glow / Neon' },
+    render(ctx, W, H) {
+      ctx.fillStyle='#000'; ctx.fillRect(0,0,W,H);
+      const palettes=[['#00ffaa','#ff00cc','#ffcc00'],['#ff3300','#00ccff','#ff9900'],['#cc00ff','#00ff99','#ff6600']];
+      const pal=palettes[Math.floor(Math.random()*palettes.length)];
+      const cells=20+Math.floor(Math.random()*15);
+      for (let i=0;i<cells;i++) {
+        const cx=Math.random()*W, cy=Math.random()*H;
+        const r=30+Math.random()*120;
+        const g=ctx.createRadialGradient(cx,cy,0,cx,cy,r);
+        const c=pal[i%pal.length];
+        g.addColorStop(0,c+'99'); g.addColorStop(0.6,c+'33'); g.addColorStop(1,'transparent');
+        ctx.fillStyle=g; ctx.globalAlpha=0.7+Math.random()*0.3;
+        ctx.beginPath(); ctx.arc(cx,cy,r,0,Math.PI*2); ctx.fill(); ctx.globalAlpha=1;
+      }
+      // drip lines
+      for (let i=0;i<8;i++) {
+        const x=Math.random()*W;
+        const c=pal[i%pal.length];
+        ctx.beginPath(); ctx.moveTo(x,Math.random()*H*0.5);
+        let cy2=Math.random()*H*0.5; const tx=x+(Math.random()-0.5)*60;
+        ctx.quadraticCurveTo(tx,cy2+H*0.25,x+(Math.random()-0.5)*30,H);
+        ctx.strokeStyle=c+'bb'; ctx.lineWidth=2+Math.random()*6; ctx.stroke();
+      }
+    }
+  },
+  {
+    id: 'biolume-tide',
+    name: 'Biolume Tide',
+    params: { style:'Bioluminescent', material:'Neon Light', colors:'Deep Ocean', shape:'Organic Flowing', light:'Subsurface Scatter' },
+    render(ctx, W, H) {
+      const bg=ctx.createLinearGradient(0,0,0,H);
+      bg.addColorStop(0,'#000d1a'); bg.addColorStop(1,'#001a0d');
+      ctx.fillStyle=bg; ctx.fillRect(0,0,W,H);
+      const orbs=[['#00ffcc',40],['#22d3ee',60],['#00ff88',30],['#0088ff',50],['#00ccff',45]];
+      for (let rep=0;rep<3;rep++) orbs.forEach(([c,br]) => {
+        const cx=Math.random()*W, cy=Math.random()*H;
+        const r=20+Math.random()*br;
+        const g=ctx.createRadialGradient(cx,cy,0,cx,cy,r);
+        g.addColorStop(0,c+'cc'); g.addColorStop(0.4,c+'44'); g.addColorStop(1,'transparent');
+        ctx.fillStyle=g; ctx.beginPath(); ctx.arc(cx,cy,r,0,Math.PI*2); ctx.fill();
+        ctx.shadowColor=c; ctx.shadowBlur=20;
+        ctx.beginPath(); ctx.arc(cx,cy,r*0.2,0,Math.PI*2); ctx.fillStyle=c+'ff'; ctx.fill();
+        ctx.shadowBlur=0;
+      });
+      // floating tendrils
+      for (let i=0;i<12;i++) {
+        ctx.beginPath(); ctx.moveTo(Math.random()*W, H);
+        const cp1x=Math.random()*W, cp1y=H*0.6;
+        const cp2x=Math.random()*W, cp2y=H*0.3;
+        ctx.bezierCurveTo(cp1x,cp1y,cp2x,cp2y,Math.random()*W,Math.random()*H*0.3);
+        ctx.strokeStyle=`rgba(0,${150+Math.random()*105},${100+Math.random()*155},${0.1+Math.random()*0.2})`;
+        ctx.lineWidth=1+Math.random()*3; ctx.stroke();
+      }
+    }
+  },
+  {
+    id: 'cosmic-mandala',
+    name: 'Cosmic Mandala',
+    params: { style:'Cosmic', material:'Glass', colors:'Complementary', shape:'Mandala / Sacred', light:'Backlit / Rim' },
+    render(ctx, W, H) {
+      ctx.fillStyle='#04000f'; ctx.fillRect(0,0,W,H);
+      ctx.save(); ctx.translate(W/2, H/2);
+      const rings=6+Math.floor(Math.random()*4);
+      const petals=8+Math.floor(Math.random()*4)*2;
+      for (let r=0;r<rings;r++) {
+        const radius=(r+1)*(Math.min(W,H)*0.42/rings);
+        const hue=260+r*25;
+        for (let p=0;p<petals;p++) {
+          const angle=(p/petals)*Math.PI*2;
+          ctx.save(); ctx.rotate(angle);
+          const g=ctx.createRadialGradient(0,radius,0,0,radius,radius*0.35);
+          g.addColorStop(0,`hsla(${hue},90%,70%,${0.2+r*0.04})`);
+          g.addColorStop(1,'transparent');
+          ctx.fillStyle=g; ctx.beginPath();
+          ctx.ellipse(0,radius,radius*0.18,radius*0.35,0,0,Math.PI*2);
+          ctx.fill();
+          ctx.strokeStyle=`hsla(${hue+30},80%,65%,0.3)`;
+          ctx.lineWidth=0.5; ctx.stroke();
+          ctx.restore();
+        }
+        ctx.strokeStyle=`hsla(${hue},70%,55%,0.15)`;
+        ctx.lineWidth=1; ctx.beginPath(); ctx.arc(0,0,radius,0,Math.PI*2); ctx.stroke();
+      }
+      const cg=ctx.createRadialGradient(0,0,0,0,0,40);
+      cg.addColorStop(0,'#fff'); cg.addColorStop(0.3,'rgba(168,85,247,0.8)'); cg.addColorStop(1,'transparent');
+      ctx.fillStyle=cg; ctx.beginPath(); ctx.arc(0,0,40,0,Math.PI*2); ctx.fill();
+      ctx.restore();
+    }
+  },
+  {
+    id: 'plasma-storm',
+    name: 'Plasma Storm',
+    params: { style:'Abstract', material:'Neon Light', colors:'Neon Cosmic', shape:'Geometric', light:'Dramatic Contrast' },
+    render(ctx, W, H) {
+      ctx.fillStyle='#000510'; ctx.fillRect(0,0,W,H);
+      const arcs=12+Math.floor(Math.random()*8);
+      for (let i=0;i<arcs;i++) {
+        let px=Math.random()*W, py=Math.random()*H;
+        const hue=180+Math.random()*80;
+        ctx.beginPath(); ctx.moveTo(px,py);
+        const segs=8+Math.floor(Math.random()*8);
+        for (let s=0;s<segs;s++) {
+          px+=(Math.random()-0.5)*W*0.2; py+=(Math.random()-0.5)*H*0.15;
+          ctx.lineTo(Math.max(0,Math.min(W,px)),Math.max(0,Math.min(H,py)));
+        }
+        ctx.shadowColor=`hsl(${hue},100%,70%)`; ctx.shadowBlur=12;
+        ctx.strokeStyle=`hsla(${hue},100%,75%,${0.4+Math.random()*0.5})`;
+        ctx.lineWidth=0.5+Math.random()*2; ctx.stroke(); ctx.shadowBlur=0;
+      }
+      // energy nodes
+      for (let i=0;i<20;i++) {
+        const x=Math.random()*W, y=Math.random()*H, r=2+Math.random()*6;
+        const g=ctx.createRadialGradient(x,y,0,x,y,r);
+        g.addColorStop(0,'#fff'); g.addColorStop(0.5,'rgba(34,211,238,0.8)'); g.addColorStop(1,'transparent');
+        ctx.fillStyle=g; ctx.beginPath(); ctx.arc(x,y,r,0,Math.PI*2); ctx.fill();
+      }
+    }
+  },
+  {
+    id: 'cherry-data',
+    name: 'Cherry Data',
+    params: { style:'Digital Art', material:'Watercolor', colors:'Pastel Soft', shape:'Floral', light:'Soft Diffused' },
+    render(ctx, W, H) {
+      const bg=ctx.createLinearGradient(0,0,W,H);
+      bg.addColorStop(0,'#1a0820'); bg.addColorStop(1,'#0d0418');
+      ctx.fillStyle=bg; ctx.fillRect(0,0,W,H);
+      for (let i=0;i<40;i++) {
+        const cx=Math.random()*W, cy=Math.random()*H;
+        const r=5+Math.random()*18;
+        const hue=300+Math.random()*60;
+        const petals=5;
+        ctx.save(); ctx.translate(cx,cy); ctx.rotate(Math.random()*Math.PI*2);
+        for (let p=0;p<petals;p++) {
+          ctx.save(); ctx.rotate((p/petals)*Math.PI*2);
+          const g=ctx.createRadialGradient(0,r/2,0,0,r/2,r);
+          g.addColorStop(0,`hsla(${hue},80%,75%,${0.15+Math.random()*0.2})`);
+          g.addColorStop(1,'transparent');
+          ctx.fillStyle=g; ctx.beginPath(); ctx.ellipse(0,r/2,r*0.4,r/2,0,0,Math.PI*2); ctx.fill();
+          ctx.restore();
+        }
+        ctx.beginPath(); ctx.arc(0,0,r*0.2,0,Math.PI*2);
+        ctx.fillStyle=`hsla(${hue+40},90%,80%,0.8)`; ctx.fill();
+        ctx.restore();
+      }
+      // data grid overlay
+      ctx.globalAlpha=0.04;
+      for (let x=0;x<W;x+=20) { ctx.beginPath(); ctx.moveTo(x,0); ctx.lineTo(x,H); ctx.strokeStyle='#fff'; ctx.lineWidth=0.5; ctx.stroke(); }
+      for (let y=0;y<H;y+=20) { ctx.beginPath(); ctx.moveTo(0,y); ctx.lineTo(W,y); ctx.strokeStyle='#fff'; ctx.lineWidth=0.5; ctx.stroke(); }
+      ctx.globalAlpha=1;
+    }
+  },
+  {
+    id: 'dark-matter',
+    name: 'Dark Matter',
+    params: { style:'Abstract', material:'Ink', colors:'Dark Moody', shape:'Geometric', light:'Dramatic Contrast' },
+    render(ctx, W, H) {
+      ctx.fillStyle='#000'; ctx.fillRect(0,0,W,H);
+      const pts=[];
+      for (let i=0;i<30;i++) pts.push([Math.random()*W, Math.random()*H]);
+      pts.forEach(([px,py],i) => {
+        pts.forEach(([qx,qy],j) => {
+          if (j<=i) return;
+          const d=Math.hypot(px-qx,py-qy);
+          if (d<W*0.25) {
+            ctx.beginPath(); ctx.moveTo(px,py); ctx.lineTo(qx,qy);
+            ctx.strokeStyle=`rgba(${180+Math.random()*75},${180+Math.random()*75},255,${(1-d/(W*0.25))*0.35})`;
+            ctx.lineWidth=0.5; ctx.stroke();
+          }
+        });
+        ctx.beginPath(); ctx.arc(px,py,2+Math.random()*3,0,Math.PI*2);
+        ctx.fillStyle=`rgba(200,220,255,${0.4+Math.random()*0.5})`; ctx.fill();
+      });
+    }
+  },
+  {
+    id: 'neon-garden',
+    name: 'Neon Garden',
+    params: { style:'Bioluminescent', material:'Neon Light', colors:'Warm Sunset', shape:'Floral', light:'Glow / Neon' },
+    render(ctx, W, H) {
+      ctx.fillStyle='#020008'; ctx.fillRect(0,0,W,H);
+      const stems=12+Math.floor(Math.random()*8);
+      for (let i=0;i<stems;i++) {
+        const x=Math.random()*W, hue=80+Math.random()*200;
+        const h=H*0.2+Math.random()*H*0.55;
+        ctx.shadowColor=`hsl(${hue},100%,60%)`; ctx.shadowBlur=8;
+        ctx.strokeStyle=`hsla(${hue},90%,55%,0.6)`; ctx.lineWidth=1;
+        ctx.beginPath(); ctx.moveTo(x,H);
+        ctx.quadraticCurveTo(x+(Math.random()-0.5)*50,H-h/2,x+(Math.random()-0.5)*30,H-h);
+        ctx.stroke();
+        // bloom at top
+        const bx=x+(Math.random()-0.5)*30, by=H-h;
+        const r=6+Math.random()*20;
+        const g=ctx.createRadialGradient(bx,by,0,bx,by,r);
+        g.addColorStop(0,`hsla(${hue},100%,75%,0.9)`);
+        g.addColorStop(1,'transparent');
+        ctx.fillStyle=g; ctx.beginPath(); ctx.arc(bx,by,r,0,Math.PI*2); ctx.fill();
+        ctx.shadowBlur=0;
+      }
+    }
+  },
+  {
+    id: 'deep-space-rift',
+    name: 'Space Rift',
+    params: { style:'Cosmic', material:'Ink', colors:'Monochromatic', shape:'Fractal', light:'Backlit / Rim' },
+    render(ctx, W, H) {
+      const bg=ctx.createRadialGradient(W*0.5,H*0.5,0,W*0.5,H*0.5,Math.max(W,H)*0.6);
+      bg.addColorStop(0,'#08003a'); bg.addColorStop(0.5,'#03001a'); bg.addColorStop(1,'#000004');
+      ctx.fillStyle=bg; ctx.fillRect(0,0,W,H);
+      // rift crack
+      let rx=W/2, ry=H/2;
+      ctx.beginPath(); ctx.moveTo(rx,ry);
+      const segs=20;
+      for (let i=0;i<segs;i++) {
+        rx+=(Math.random()-0.5)*80; ry+=((Math.random()-0.3))*30;
+        ctx.lineTo(Math.max(0,Math.min(W,rx)),Math.max(0,Math.min(H,ry)));
+      }
+      ctx.shadowColor='#a855f7'; ctx.shadowBlur=30;
+      ctx.strokeStyle='rgba(168,85,247,0.8)'; ctx.lineWidth=3; ctx.stroke();
+      ctx.shadowBlur=0;
+      // stars
+      for (let i=0;i<200;i++) {
+        const x=Math.random()*W,y=Math.random()*H;
+        ctx.beginPath(); ctx.arc(x,y,Math.random()*1.5,0,Math.PI*2);
+        ctx.fillStyle=`rgba(200,190,255,${0.2+Math.random()*0.7})`; ctx.fill();
+      }
+    }
+  },
+  {
+    id: 'electric-coral',
+    name: 'Electric Coral',
+    params: { style:'Bioluminescent', material:'Acrylic Pour', colors:'Complementary', shape:'Organic Flowing', light:'Subsurface Scatter' },
+    render(ctx, W, H) {
+      ctx.fillStyle='#000408'; ctx.fillRect(0,0,W,H);
+      // branching coral
+      function branch(x, y, angle, length, depth, hue) {
+        if (depth===0||length<3) return;
+        const ex=x+Math.cos(angle)*length, ey=y+Math.sin(angle)*length;
+        ctx.shadowColor=`hsl(${hue},100%,60%)`; ctx.shadowBlur=6;
+        ctx.strokeStyle=`hsla(${hue},90%,65%,${0.3+depth*0.1})`;
+        ctx.lineWidth=depth*0.6; ctx.beginPath(); ctx.moveTo(x,y); ctx.lineTo(ex,ey); ctx.stroke();
+        ctx.shadowBlur=0;
+        const spread=0.4+Math.random()*0.3;
+        branch(ex,ey,angle-spread,length*0.7,depth-1,(hue+15)%360);
+        branch(ex,ey,angle+spread,length*0.7,depth-1,(hue-15+360)%360);
+        if (Math.random()<0.3) branch(ex,ey,angle,length*0.6,depth-1,hue);
+      }
+      const cols=3+Math.floor(Math.random()*3);
+      for (let c=0;c<cols;c++) {
+        branch(Math.random()*W,H,-(Math.PI/2)+(Math.random()-0.5)*0.5,H*0.15+Math.random()*H*0.1,6+Math.floor(Math.random()*3),10+Math.random()*350);
+      }
+    }
+  },
+  {
+    id: 'chrome-dreams',
+    name: 'Chrome Dreams',
+    params: { style:'Surrealist', material:'Liquid Mercury', colors:'Dark Moody', shape:'Spiral / Vortex', light:'Cinematic' },
+    render(ctx, W, H) {
+      ctx.fillStyle='#080810'; ctx.fillRect(0,0,W,H);
+      ctx.save(); ctx.translate(W/2, H/2);
+      const turns=4+Math.floor(Math.random()*3);
+      const steps=turns*60;
+      for (let s=0;s<steps;s++) {
+        const t=s/steps, angle=t*Math.PI*2*turns;
+        const r=t*Math.min(W,H)*0.46;
+        const x=Math.cos(angle)*r, y=Math.sin(angle)*r;
+        const thickness=3*(1-t)+1;
+        const bright=40+t*55;
+        ctx.beginPath(); ctx.arc(x,y,thickness/2,0,Math.PI*2);
+        ctx.fillStyle=`hsla(${200+t*80},${20+t*40}%,${bright}%,${0.6+t*0.3})`; ctx.fill();
+      }
+      ctx.restore();
+      // chrome sheen overlay
+      const sheen=ctx.createRadialGradient(W*0.3,H*0.3,0,W*0.5,H*0.5,Math.max(W,H)*0.6);
+      sheen.addColorStop(0,'rgba(200,210,230,0.07)'); sheen.addColorStop(0.5,'transparent'); sheen.addColorStop(1,'rgba(20,30,60,0.3)');
+      ctx.fillStyle=sheen; ctx.fillRect(0,0,W,H);
+    }
+  }
+];
+
+const activePresetIds = new Set();
+
+function initPresets() {
+  const grid = document.getElementById('presetGrid');
+  if (!grid) return;
+  CF_PRESETS.forEach(preset => {
+    const card = document.createElement('div');
+    card.className = 'preset-card';
+    card.dataset.presetId = preset.id;
+
+    const canvas = document.createElement('canvas');
+    canvas.className = 'preset-canvas';
+    canvas.width = 120; canvas.height = 80;
+    const tc = canvas.getContext('2d');
+    preset.render(tc, 120, 80);
+
+    const label = document.createElement('div');
+    label.className = 'preset-label';
+    label.textContent = preset.name;
+
+    card.appendChild(canvas); card.appendChild(label);
+    card.addEventListener('click', () => {
+      // Toggle this card — multiple can be active at once
+      if (activePresetIds.has(preset.id)) {
+        activePresetIds.delete(preset.id);
+        card.classList.remove('active');
+      } else {
+        activePresetIds.add(preset.id);
+        card.classList.add('active');
+        // Update prompt builder params from the most recently selected preset
+        const p = preset.params;
+        ['pStyle','pMaterial','pColors','pShape','pLight'].forEach(id => {
+          const key = id === 'pStyle' ? 'style' : id === 'pMaterial' ? 'material' : id === 'pColors' ? 'colors' : id === 'pShape' ? 'shape' : 'light';
+          const sel = document.getElementById(id);
+          if (!sel) return;
+          for (let i=0;i<sel.options.length;i++) {
+            if (sel.options[i].text === p[key]) { sel.selectedIndex=i; break; }
+          }
+        });
+      }
+      // Update button label to show count
+      const btn = document.getElementById('btnApplyPreset');
+      if (btn) btn.textContent = activePresetIds.size > 1 ? `Apply ${activePresetIds.size} Presets to Canvas` : 'Apply Preset to Canvas';
+    });
+    grid.appendChild(card);
+  });
+
+  document.getElementById('btnApplyPreset').addEventListener('click', () => {
+    if (activePresetIds.size === 0) { alert('Select one or more presets first!'); return; }
+    const studioMod = window._studioLayers;
+    // Apply each selected preset in the order they appear in CF_PRESETS (layering order)
+    CF_PRESETS.forEach(preset => {
+      if (!activePresetIds.has(preset.id)) return;
+      if (studioMod) {
+        const lc = studioMod.getLayerCtx();
+        const W = studioMod.W, H = studioMod.H;
+        preset.render(lc, W, H);
+      } else {
+        const mainCanvas = document.getElementById('studioCanvas');
+        const c = mainCanvas.getContext('2d');
+        preset.render(c, mainCanvas.width, mainCanvas.height);
+      }
+    });
+    if (studioMod) studioMod.composite();
+  });
+}
+
+/* ── Semantic Prompt Parser ── */
+const SEMANTIC_MAP = {
+  // Colors
+  purple:['purple','violet','amethyst','lavender',[260,'Monochromatic']],
+  cyan:['cyan','aqua','teal','turquoise',[180,'Deep Ocean']],
+  pink:['pink','rose','magenta','fuchsia',[310,'Warm Sunset']],
+  orange:['orange','amber','gold','fire',[30,'Warm Sunset']],
+  green:['green','emerald','lime','jade',[120,'Deep Ocean']],
+  neon:['neon','electric','vivid','bright','fluorescent',[null,'Neon Cosmic']],
+  pastel:['pastel','soft','gentle','muted','dreamy',[null,'Pastel Soft']],
+  dark:['dark','moody','shadow','void','noir',[null,'Dark Moody']],
+  // Styles
+  cosmic:['cosmic','galaxy','nebula','stars','space','stellar',[null,'Cosmic']],
+  bio:['bioluminescent','glowing','luminous','biolume','ocean',[null,'Bioluminescent']],
+  abstract:['abstract','chaotic','random','expressionist',[null,'Abstract']],
+  crystal:['crystal','glass','gem','diamond','shard','prism',[null,'Bioluminescent']],
+  // Shapes
+  mandala:['mandala','sacred','geometry','symmetric','radial',[null,'Mandala / Sacred']],
+  fractal:['fractal','recursive','infinite','branching',[null,'Fractal']],
+  floral:['floral','flower','bloom','petal','garden','botanical',[null,'Floral']],
+  spiral:['spiral','vortex','swirl','helix','curl',[null,'Spiral / Vortex']],
+  organic:['organic','flowing','fluid','liquid','pour','drip',[null,'Organic Flowing']],
+  geometric:['geometric','sharp','angular','polygon','prism',[null,'Geometric']],
+  // Materials
+  watercolor:['watercolor','wash','aquarelle','ink wash',[null,'Watercolor']],
+  pour:['pour','acrylic','resin','fluid art',[null,'Acrylic Pour']],
+  neonLight:['neon light','plasma','electric light','laser',[null,'Neon Light']],
+  mercury:['mercury','chrome','metallic','silver','mirror',[null,'Liquid Mercury']],
+};
+
+function parseSemanticPrompt(text) {
+  if (!text.trim()) return;
+  const lower = text.toLowerCase();
+  const found = [];
+  const suggestions = {};
+  for (const [key, arr] of Object.entries(SEMANTIC_MAP)) {
+    const words = arr.slice(0,-1);
+    const [hintHue, hintParam] = arr[arr.length-1];
+    if (words.some(w => lower.includes(w))) {
+      found.push(words[0]);
+      if (hintParam) {
+        // Map hint to dropdown
+        if (['Neon Cosmic','Iridescent Biolume','Warm Sunset','Deep Ocean','Monochromatic','Complementary','Pastel Soft','Dark Moody'].includes(hintParam)) {
+          suggestions.pColors = hintParam;
+        } else if (['Cosmic','Bioluminescent','Abstract','Surrealist','Watercolor','Oil Painting','Digital Art','Concept Art','Photorealistic'].includes(hintParam)) {
+          suggestions.pStyle = hintParam;
+        } else if (['Organic Flowing','Geometric','Fractal','Mandala / Sacred','Floral','Abstract Blob','Crystalline','Spiral / Vortex'].includes(hintParam)) {
+          suggestions.pShape = hintParam;
+        } else if (['Acrylic Pour','Oil Paint','Watercolor','Fabric/Textile','Clay/Ceramic','Glass','Neon Light','Liquid Mercury','Ink'].includes(hintParam)) {
+          suggestions.pMaterial = hintParam;
+        }
+      }
+    }
+  }
+  // Apply suggestions to selects
+  for (const [id, val] of Object.entries(suggestions)) {
+    const sel = document.getElementById(id);
+    if (!sel) continue;
+    for (let i=0;i<sel.options.length;i++) {
+      if (sel.options[i].text === val) { sel.selectedIndex=i; break; }
+    }
+  }
+  // Show found tags
+  const tagContainer = document.getElementById('parseTags');
+  if (tagContainer) {
+    tagContainer.innerHTML = found.slice(0,8).map(t => `<span class="parse-tag">${t}</span>`).join('');
+  }
+}
+
+// Hook semantic parser on prompt input
+document.addEventListener('DOMContentLoaded', () => {
+  initPresets();
+  const promptEl = document.getElementById('promptInput');
+  if (promptEl) {
+    let parseTimer;
+    promptEl.addEventListener('input', () => {
+      clearTimeout(parseTimer);
+      parseTimer = setTimeout(() => parseSemanticPrompt(promptEl.value), 600);
+    });
+  }
+});
+
+/* Pro paywall removed — all features are now free */
+function showProModal(e) { if(e)e.stopPropagation(); }
+window.showProModal = showProModal;
+
+/* ── Creator / Share system ── */
+function copyStudioEmbed(btn) {
+  const seed = Math.floor(Math.random() * 99999);
+  const url = `${location.origin}/embed.html?type=mandala&color=iris&folds=8&speed=0.5&seed=${seed}`;
+  const snippet = `<iframe\n  src="${url}"\n  width="560" height="400"\n  style="border:none; border-radius:12px; background:#04040f"\n  allow="autoplay"\n  title="ChromaFlora generative art embed"\n></iframe>`;
+  navigator.clipboard.writeText(snippet).then(() => {
+    const b = btn || document.querySelector('[onclick*="copyStudioEmbed"]');
+    if (b) { b.textContent = '✓ Copied!'; setTimeout(() => { b.textContent = '‹/› Embed'; }, 2000); }
+  });
+}
+
+function shareArtwork() {
+  const username = (prompt('Your creator username (shown in the gallery):') || 'anonymous').replace(/[<>"']/g,'').trim().slice(0,40);
+  const prompt_text = (prompt('Describe your artwork (shown as caption):') || 'Untitled creation').replace(/[<>"']/g,'').trim().slice(0,200);
+  // Get canvas data URL
+  const mainCanvas = document.querySelector('#studioCanvas, canvas');
+  let dataUrl = null;
+  if (mainCanvas) {
+    try { dataUrl = mainCanvas.toDataURL('image/png'); } catch(e) {}
+  }
+  const artworks = JSON.parse(localStorage.getItem('cf_artworks')||'[]');
+  artworks.push({
+    id: Date.now().toString(),
+    username,
+    prompt: prompt_text,
+    dataUrl: dataUrl,
+    timestamp: Date.now(),
+  });
+  localStorage.setItem('cf_artworks', JSON.stringify(artworks));
+  const btn = document.getElementById('shareArtBtn');
+  btn.textContent = '✓ Shared!';
+  setTimeout(()=>btn.textContent='✦ Share to Gallery', 3000);
+  // Offer to download too
+  if (dataUrl) {
+    const a = document.createElement('a');
+    a.href = dataUrl; a.download = `chromaflora-${username}-${Date.now()}.png`; a.click();
+  }
+}
+window.shareArtwork = shareArtwork;
+</script>
+
+<!-- ═══════════════════════════════════════════════════════════════
+   CHROMAFLORA STUDIO — Math, Sacred Geometry & Plotter Engine
+   Jennipher Troup · @halcyonminx
+══════════════════════════════════════════════════════════════════ -->
+<style>
+#geoOverlay{position:absolute;inset:0;pointer-events:none;z-index:2;opacity:.55}
+.plotter-mode #studioCanvas{filter:grayscale(1) contrast(2)}
+</style>
+<script>
+(function MathGeoEngine() {
+
+/* ── Sacred Geometry Overlay ── */
+const canvasArea = document.getElementById('canvasArea');
+let overlayCanvas = null;
+let activeGeo = 'none';
+
+function getOrCreateOverlay() {
+  if (overlayCanvas) return overlayCanvas;
+  overlayCanvas = document.createElement('canvas');
+  overlayCanvas.id = 'geoOverlay';
+  const sc = document.getElementById('studioCanvas');
+  overlayCanvas.width = sc.width; overlayCanvas.height = sc.height;
+  overlayCanvas.style.cssText = 'position:absolute;inset:0;pointer-events:none;z-index:2;opacity:.55;width:100%;height:100%';
+  canvasArea.appendChild(overlayCanvas);
+  return overlayCanvas;
+}
+
+function clearOverlay() {
+  if (!overlayCanvas) return;
+  const ctx = overlayCanvas.getContext('2d');
+  ctx.clearRect(0, 0, overlayCanvas.width, overlayCanvas.height);
+}
+
+function drawGeoOverlay(type) {
+  const oc = getOrCreateOverlay();
+  const ctx = oc.getContext('2d');
+  const W = oc.width, H = oc.height;
+  ctx.clearRect(0, 0, W, H);
+  if (type === 'none') return;
+
+  ctx.strokeStyle = 'rgba(255,215,255,0.5)';
+  ctx.lineWidth = 0.8;
+  const cx = W / 2, cy = H / 2;
+
+  switch (type) {
+    case 'phi-grid': {
+      // Golden ratio grid lines
+      const phi = 1.61803398875;
+      ctx.strokeStyle = 'rgba(255,200,100,.45)';
+      ctx.lineWidth = 0.6;
+      const rx = W / (phi + 1);
+      const ry = H / (phi + 1);
+      [rx, W - rx].forEach(x => { ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, H); ctx.stroke(); });
+      [ry, H - ry].forEach(y => { ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(W, y); ctx.stroke(); });
+      // Phi spiral
+      ctx.strokeStyle = 'rgba(255,200,100,.3)';
+      ctx.lineWidth = 0.8;
+      ctx.beginPath();
+      for (let t = 0; t < Math.PI * 8; t += 0.05) {
+        const r = 20 * Math.pow(phi, t / (Math.PI * 2));
+        const x = cx + r * Math.cos(t), y = cy + r * Math.sin(t);
+        t < 0.05 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+        if (r > Math.max(W, H)) break;
+      }
+      ctx.stroke();
+      break;
+    }
+    case 'fibonacci': {
+      ctx.strokeStyle = 'rgba(200,255,200,.45)';
+      let a = 0, b = 1, x0 = cx, y0 = cy, dir = 0;
+      for (let i = 0; i < 12; i++) {
+        const r = b * Math.min(W, H) * 0.05;
+        ctx.strokeRect(x0 - (dir === 0 || dir === 1 ? r : 0), y0 - (dir === 1 || dir === 2 ? r : 0),
+          dir === 0 || dir === 2 ? r : r, dir === 1 || dir === 3 ? r : r);
+        // Arc
+        ctx.beginPath();
+        const offsets = [[0, r, 0, 0], [-r, 0, 0, r], [0, -r, r, 0], [r, 0, 0, -r]];
+        const o = offsets[dir % 4];
+        const angles = [[0, Math.PI / 2], [Math.PI / 2, Math.PI], [Math.PI, Math.PI * 1.5], [Math.PI * 1.5, Math.PI * 2]];
+        ctx.arc(x0 + o[0], y0 + o[1], r, angles[dir % 4][0], angles[dir % 4][1]);
+        ctx.stroke();
+        const [c] = [a + b]; a = b; b = c;
+        dir = (dir + 1) % 4;
+      }
+      break;
+    }
+    case 'flower': {
+      // Flower of Life
+      const r = Math.min(W, H) * 0.08;
+      const centers = [[cx, cy]];
+      for (let a = 0; a < 6; a++) {
+        centers.push([cx + r * Math.cos(a * Math.PI / 3), cy + r * Math.sin(a * Math.PI / 3)]);
+        centers.push([cx + 2 * r * Math.cos(a * Math.PI / 3), cy + 2 * r * Math.sin(a * Math.PI / 3)]);
+      }
+      for (let a = 0; a < 6; a++) {
+        centers.push([cx + 2 * r * Math.cos((a + 0.5) * Math.PI / 3), cy + 2 * r * Math.sin((a + 0.5) * Math.PI / 3)]);
+      }
+      ctx.strokeStyle = 'rgba(168,85,247,.5)'; ctx.lineWidth = 0.7;
+      centers.forEach(([ccx, ccy]) => {
+        ctx.beginPath(); ctx.arc(ccx, ccy, r, 0, Math.PI * 2); ctx.stroke();
+      });
+      // Outer boundary circle
+      ctx.strokeStyle = 'rgba(168,85,247,.2)'; ctx.lineWidth = 1;
+      ctx.beginPath(); ctx.arc(cx, cy, r * 3, 0, Math.PI * 2); ctx.stroke();
+      break;
+    }
+    case 'metatron': {
+      const r = Math.min(W, H) * 0.09;
+      const pts = [[cx, cy]];
+      for (let a = 0; a < 6; a++) pts.push([cx + r * 2 * Math.cos(a * Math.PI / 3), cy + r * 2 * Math.sin(a * Math.PI / 3)]);
+      for (let a = 0; a < 6; a++) pts.push([cx + r * 4 * Math.cos(a * Math.PI / 3), cy + r * 4 * Math.sin(a * Math.PI / 3)]);
+      // Draw all connecting lines
+      ctx.strokeStyle = 'rgba(34,211,238,.35)'; ctx.lineWidth = 0.5;
+      for (let i = 0; i < pts.length; i++) for (let j = i + 1; j < pts.length; j++) {
+        ctx.beginPath(); ctx.moveTo(pts[i][0], pts[i][1]); ctx.lineTo(pts[j][0], pts[j][1]); ctx.stroke();
+      }
+      // Circles on each node
+      ctx.strokeStyle = 'rgba(168,85,247,.4)'; ctx.lineWidth = 0.7;
+      pts.forEach(([px, py]) => { ctx.beginPath(); ctx.arc(px, py, r, 0, Math.PI * 2); ctx.stroke(); });
+      break;
+    }
+    case 'vesica': {
+      const r = Math.min(W, H) * 0.2;
+      ctx.strokeStyle = 'rgba(236,72,153,.5)'; ctx.lineWidth = 0.9;
+      ctx.beginPath(); ctx.arc(cx - r / 2, cy, r, 0, Math.PI * 2); ctx.stroke();
+      ctx.beginPath(); ctx.arc(cx + r / 2, cy, r, 0, Math.PI * 2); ctx.stroke();
+      // Vesica overlap highlight
+      ctx.strokeStyle = 'rgba(255,200,255,.3)';
+      ctx.beginPath(); ctx.arc(cx - r / 2, cy, r, -Math.PI / 3, Math.PI / 3); ctx.stroke();
+      ctx.beginPath(); ctx.arc(cx + r / 2, cy, r, Math.PI * 2 / 3, Math.PI * 4 / 3); ctx.stroke();
+      break;
+    }
+    case 'seed': {
+      const r = Math.min(W, H) * 0.09;
+      ctx.strokeStyle = 'rgba(249,115,22,.45)'; ctx.lineWidth = 0.7;
+      [[cx, cy], ...Array.from({length: 6}, (_, a) => [cx + r * Math.cos(a * Math.PI / 3), cy + r * Math.sin(a * Math.PI / 3)])].forEach(([px, py]) => {
+        ctx.beginPath(); ctx.arc(px, py, r, 0, Math.PI * 2); ctx.stroke();
+      });
+      break;
+    }
+  }
+}
+
+// Bind overlay buttons
+document.querySelectorAll('[data-geo]').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('[data-geo]').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    activeGeo = btn.dataset.geo;
+    drawGeoOverlay(activeGeo);
+    // Keep window._studioGeo in sync so the fill tool can read it
+    window._studioGeo = { activeGeo };
+  });
+});
+
+// Expose activeGeo for the fill tool
+window._studioGeo = { activeGeo };
+
+/* ── Show/hide math tool panels ── */
+document.querySelectorAll('.tool-btn[data-tool]').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const tool = btn.dataset.tool;
+    document.getElementById('spirographParams').style.display = tool === 'spirograph' ? 'block' : 'none';
+    document.getElementById('harmonographParams').style.display = tool === 'harmonograph' ? 'block' : 'none';
+    // Plotter preview mode
+    document.querySelector('.studio')?.classList.toggle('plotter-mode', tool === 'plotter');
+  });
+});
+
+/* ── Spirograph draw to canvas ── */
+function drawSpirograph() {
+  const sc = document.getElementById('studioCanvas');
+  const ctx = sc.getContext('2d');
+  const W = sc.width, H = sc.height;
+  const R = parseInt(document.getElementById('sgR').value);
+  const r = parseInt(document.getElementById('sgr').value);
+  const d = parseInt(document.getElementById('sgd').value);
+  const loops = parseInt(document.getElementById('sgLoops').value);
+  const totalAngle = Math.PI * 2 * Math.ceil(R / Math.max(1, gcd(Math.abs(Math.round(R)), Math.abs(Math.round(r)))));
+  const steps = loops * 200;
+  const cx = W / 2, cy = H / 2;
+  const hue = (Date.now() * 0.01) % 360;
+  ctx.save();
+  ctx.strokeStyle = `hsla(${hue},85%,65%,0.7)`;
+  ctx.lineWidth = 1.5;
+  ctx.globalCompositeOperation = 'screen';
+  ctx.beginPath();
+  for (let i = 0; i <= steps; i++) {
+    const t = (i / steps) * totalAngle * loops;
+    const x = cx + (R - r) * Math.cos(t) + d * Math.cos((R - r) / r * t);
+    const y = cy + (R - r) * Math.sin(t) - d * Math.sin((R - r) / r * t);
+    i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+  }
+  ctx.stroke();
+  ctx.restore();
+  // Composite
+  if (window.studioComposite) window.studioComposite();
+}
+
+function gcd(a, b) { return b === 0 ? a : gcd(b, a % b); }
+
+document.getElementById('btnDrawSpirograph')?.addEventListener('click', drawSpirograph);
+
+// Slider label updates for spirograph
+['sgR', 'sgr', 'sgd', 'sgLoops'].forEach(id => {
+  const el = document.getElementById(id);
+  const valId = id + 'Val';
+  if (el) el.addEventListener('input', () => {
+    document.getElementById(valId).textContent = el.value;
+    const pct = ((+el.value - +el.min) / (+el.max - +el.min)) * 100;
+    el.style.setProperty('--pct', pct + '%');
+  });
+});
+
+/* ── Harmonograph draw to canvas ── */
+function drawHarmonograph() {
+  const sc = document.getElementById('studioCanvas');
+  const ctx = sc.getContext('2d');
+  const W = sc.width, H = sc.height;
+  const freqX = parseFloat(document.getElementById('studioHgX').value);
+  const freqY = parseFloat(document.getElementById('studioHgY').value);
+  const phase = parseFloat(document.getElementById('studioHgPh').value) / 100;
+  const damping = parseFloat(document.getElementById('studioHgDm').value) / 10000;
+  const amp = Math.min(W, H) * 0.42;
+  const cx = W / 2, cy = H / 2;
+  const hue = (Date.now() * 0.01) % 360;
+  ctx.save();
+  ctx.strokeStyle = `hsla(${hue},85%,65%,0.6)`;
+  ctx.lineWidth = 0.9;
+  ctx.globalCompositeOperation = 'screen';
+  ctx.beginPath();
+  let firstPt = true;
+  for (let i = 0; i < 12000; i++) {
+    const t = i * 0.04;
+    const d = Math.exp(-damping * t * 200);
+    if (d < 0.005) break;
+    const x = cx + Math.sin(freqX * t + phase) * amp * d;
+    const y = cy + Math.sin(freqY * t) * amp * d;
+    if (firstPt) { ctx.moveTo(x, y); firstPt = false; } else { ctx.lineTo(x, y); }
+  }
+  ctx.stroke(); ctx.restore();
+  if (window.studioComposite) window.studioComposite();
+}
+
+document.getElementById('btnDrawHarmonograph')?.addEventListener('click', drawHarmonograph);
+
+// Slider label updates for harmonograph
+[['studioHgX', 'hgXVal'], ['studioHgY', 'hgYVal'], ['studioHgPh', 'hgPhVal', v => (v/100).toFixed(2)], ['studioHgDm', 'hgDmVal', v => (v/10000).toFixed(4)]].forEach(([id, valId, fmt]) => {
+  const el = document.getElementById(id);
+  if (el) el.addEventListener('input', () => {
+    document.getElementById(valId).textContent = fmt ? fmt(el.value) : el.value;
+    const pct = ((+el.value - +el.min) / (+el.max - +el.min)) * 100;
+    el.style.setProperty('--pct', pct + '%');
+  });
+});
+
+/* ── Spirograph tool: click+drag on canvas draws at cursor ── */
+let isSpiroDrawing = false;
+let spiroOrigin = null;
+const sc = document.getElementById('studioCanvas');
+
+sc.addEventListener('mousedown', function(e) {
+  const activeTool = document.querySelector('.tool-btn.active')?.dataset.tool;
+  if (activeTool !== 'spirograph' && activeTool !== 'harmonograph') return;
+  isSpiroDrawing = true;
+  const rect = sc.getBoundingClientRect();
+  const scaleX = sc.width / rect.width;
+  const scaleY = sc.height / rect.height;
+  spiroOrigin = { x: (e.clientX - rect.left) * scaleX, y: (e.clientY - rect.top) * scaleY };
+}, { capture: true });
+
+sc.addEventListener('mouseup', function(e) {
+  if (!isSpiroDrawing) return;
+  isSpiroDrawing = false;
+  const activeTool = document.querySelector('.tool-btn.active')?.dataset.tool;
+  const rect = sc.getBoundingClientRect();
+  const scaleX = sc.width / rect.width;
+  const scaleY = sc.height / rect.height;
+  const endPt = { x: (e.clientX - rect.left) * scaleX, y: (e.clientY - rect.top) * scaleY };
+  if (activeTool === 'spirograph') drawSpirographAt(spiroOrigin.x, spiroOrigin.y);
+  if (activeTool === 'harmonograph') drawHarmonographAt(spiroOrigin.x, spiroOrigin.y);
+}, { capture: true });
+
+function drawSpirographAt(cx, cy) {
+  const ctx = sc.getContext('2d');
+  const R = parseInt(document.getElementById('sgR').value);
+  const r = parseInt(document.getElementById('sgr').value);
+  const d = parseInt(document.getElementById('sgd').value);
+  const loops = parseInt(document.getElementById('sgLoops').value);
+  const totalAngle = Math.PI * 2 * Math.ceil(R / Math.max(1, gcd(Math.abs(Math.round(R)), Math.abs(Math.round(r)))));
+  const steps = loops * 200;
+  const hue = (Date.now() * 0.01) % 360;
+  ctx.save(); ctx.strokeStyle = `hsla(${hue},85%,65%,0.7)`; ctx.lineWidth = 1.2;
+  ctx.globalCompositeOperation = 'screen';
+  ctx.beginPath();
+  for (let i = 0; i <= steps; i++) {
+    const t = (i / steps) * totalAngle * loops;
+    const x = cx + (R - r) * Math.cos(t) + d * Math.cos((R - r) / r * t);
+    const y = cy + (R - r) * Math.sin(t) - d * Math.sin((R - r) / r * t);
+    i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+  }
+  ctx.stroke(); ctx.restore();
+}
+
+function drawHarmonographAt(cx, cy) {
+  const ctx = sc.getContext('2d');
+  const freqX = parseFloat(document.getElementById('studioHgX').value);
+  const freqY = parseFloat(document.getElementById('studioHgY').value);
+  const phase = parseFloat(document.getElementById('studioHgPh').value) / 100;
+  const damping = parseFloat(document.getElementById('studioHgDm').value) / 10000;
+  const amp = 120;
+  const hue = (Date.now() * 0.01) % 360;
+  ctx.save(); ctx.strokeStyle = `hsla(${hue},85%,65%,0.65)`; ctx.lineWidth = 0.9;
+  ctx.globalCompositeOperation = 'screen';
+  ctx.beginPath(); let firstPt = true;
+  for (let i = 0; i < 8000; i++) {
+    const t = i * 0.04;
+    const d = Math.exp(-damping * t * 200);
+    if (d < 0.005) break;
+    const x = cx + Math.sin(freqX * t + phase) * amp * d;
+    const y = cy + Math.sin(freqY * t) * amp * d;
+    if (firstPt) { ctx.moveTo(x, y); firstPt = false; } else ctx.lineTo(x, y);
+  }
+  ctx.stroke(); ctx.restore();
+}
+
+/* ── Expose composite function for math tools ── */
+window.studioComposite = function() {
+  // Trigger a re-composite of all layers if the studio engine exposes it
+  const studio = window.studio || window.StudioEngine;
+  if (studio && studio.composite) studio.composite();
+};
+
+// Add keyboard shortcuts for new tools
+document.addEventListener('keydown', e => {
+  if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+  if (e.key === 'g' || e.key === 'G') document.querySelector('[data-tool="sacred"]')?.click();
+  if (e.key === 'r' || e.key === 'R') document.querySelector('[data-tool="spirograph"]')?.click();
+  if (e.key === 'h') document.querySelector('[data-tool="harmonograph"]')?.click();
+});
+
+})();
+</script>
+<script src="player-bar.js"></script>
+<script>
+/* ════════════════════════════════════════════
+   ChromaFlora Studio — Three.js Bioluminescent Particle Field
+   WebGL layer (mix-blend-mode: screen) over the 2D drawing canvas
+   Additive blending creates natural bioluminescent glow without postprocessing
+════════════════════════════════════════════ */
+(function initCFParticles(){
+  const area = document.getElementById('canvasArea');
+  const webglCanvas = document.getElementById('cf-webgl');
+  if (!area || !webglCanvas) return;
+
+  // Load Three.js from CDN
+  const script = document.createElement('script');
+  script.src = 'https://cdn.jsdelivr.net/npm/three@0.162/build/three.min.js';
+  script.onload = function() {
+    const THREE = window.THREE;
+    if (!THREE) return;
+
+    // Renderer — transparent so 2D canvas shows through
+    const renderer = new THREE.WebGLRenderer({
+      canvas: webglCanvas,
+      alpha: true,
+      antialias: false,
+      powerPreference: 'low-power'
+    });
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    renderer.setClearColor(0x000000, 0);
+
+    const scene = new THREE.Scene();
+    const camera = new THREE.PerspectiveCamera(60, 1, 0.1, 2000);
+    camera.position.z = 420;
+
+    function resize() {
+      const w = area.clientWidth, h = area.clientHeight;
+      renderer.setSize(w, h);
+      camera.aspect = w / h;
+      camera.updateProjectionMatrix();
+    }
+    resize();
+    new ResizeObserver(resize).observe(area);
+
+    // ChromaFlora token palette
+    const TOKEN_COLORS = [
+      new THREE.Color(0xa855f7), // iris
+      new THREE.Color(0x22d3d8), // aqua
+      new THREE.Color(0xec4899), // bloom
+      new THREE.Color(0xf97316), // ember
+      new THREE.Color(0x10b981), // viridian
+    ];
+
+    // Particle system — 3000 particles in two orbital rings
+    const N = 3000;
+    const positions = new Float32Array(N * 3);
+    const colors = new Float32Array(N * 3);
+    const velocities = new Float32Array(N * 3); // angular drift
+
+    for (let i = 0; i < N; i++) {
+      // Distribute in a flattened torus-like cloud
+      const theta = Math.random() * Math.PI * 2;
+      const phi = (Math.random() - 0.5) * Math.PI * 0.6;
+      const radius = 80 + Math.random() * 280;
+      positions[i*3]   = radius * Math.cos(theta) * Math.cos(phi);
+      positions[i*3+1] = radius * Math.sin(theta) * Math.cos(phi);
+      positions[i*3+2] = radius * Math.sin(phi) * 0.4 + (Math.random()-0.5)*60;
+
+      // Assign token color with slight variation
+      const tc = TOKEN_COLORS[Math.floor(Math.random() * TOKEN_COLORS.length)];
+      const brightness = 0.5 + Math.random() * 0.5;
+      colors[i*3]   = tc.r * brightness;
+      colors[i*3+1] = tc.g * brightness;
+      colors[i*3+2] = tc.b * brightness;
+
+      // Angular drift speed (slow orbital motion)
+      velocities[i*3]   = (Math.random()-0.5) * 0.0004;
+      velocities[i*3+1] = (Math.random()-0.5) * 0.0004;
+      velocities[i*3+2] = (Math.random()-0.5) * 0.0002;
+    }
+
+    const geo = new THREE.BufferGeometry();
+    const posAttr = new THREE.BufferAttribute(positions, 3);
+    posAttr.setUsage(THREE.DynamicDrawUsage);
+    geo.setAttribute('position', posAttr);
+    geo.setAttribute('color', new THREE.BufferAttribute(colors, 3));
+
+    const mat = new THREE.PointsMaterial({
+      size: 3.0,
+      vertexColors: true,
+      transparent: true,
+      opacity: 0.65,
+      blending: THREE.AdditiveBlending, // bioluminescent glow effect
+      depthWrite: false,
+      sizeAttenuation: true,
+    });
+
+    const particles = new THREE.Points(geo, mat);
+    scene.add(particles);
+
+    // Fade in the WebGL canvas after Three.js is ready
+    webglCanvas.style.transition = 'opacity 2s ease';
+    setTimeout(() => { webglCanvas.style.opacity = '0.8'; }, 100);
+
+    // Breathing opacity — simulates bioluminescent pulse
+    let t = 0;
+    let breathPhase = 0;
+
+    function animate() {
+      requestAnimationFrame(animate);
+      t += 0.0004;
+      breathPhase += 0.008;
+
+      // Slow rotation of the entire field
+      particles.rotation.y = t;
+      particles.rotation.x = t * 0.25;
+      particles.rotation.z = t * 0.08;
+
+      // Bioluminescent breathing (0.8–1.2 Hz analog)
+      mat.opacity = 0.45 + 0.25 * Math.sin(breathPhase);
+
+      // Organic drift: nudge individual particles slightly
+      if (Math.floor(t * 1000) % 3 === 0) {
+        const posArr = geo.attributes.position.array;
+        for (let i = 0; i < N; i += 8) {
+          posArr[i*3]   += velocities[i*3]   * 30;
+          posArr[i*3+1] += velocities[i*3+1] * 30;
+          posArr[i*3+2] += velocities[i*3+2] * 30;
+          // Contain within sphere radius 380
+          const dx=posArr[i*3],dy=posArr[i*3+1],dz=posArr[i*3+2];
+          const dist=Math.sqrt(dx*dx+dy*dy+dz*dz);
+          if(dist>380){posArr[i*3]*=0.98;posArr[i*3+1]*=0.98;posArr[i*3+2]*=0.98;}
+        }
+        geo.attributes.position.needsUpdate = true;
+      }
+
+      renderer.render(scene, camera);
+    }
+    animate();
+
+    // Hide WebGL layer when drawing (it can distract from artwork editing)
+    const studioCanvas = document.getElementById('studioCanvas');
+    if (studioCanvas) {
+      studioCanvas.addEventListener('pointerdown', () => {
+        webglCanvas.style.opacity = '0.15';
+      });
+      studioCanvas.addEventListener('pointerup', () => {
+        webglCanvas.style.opacity = '0.8';
+      });
+    }
+  };
+
+  script.onerror = function() {
+    // Three.js CDN failed — graceful degradation, no error shown
+    webglCanvas.style.display = 'none';
+  };
+
+  document.head.appendChild(script);
+})();
+
+/* ── Aurora save feedback (studio-wide) ── */
+function triggerAuroraCF() {
+  const el = document.createElement('div');
+  el.style.cssText = [
+    'position:fixed','top:50%','left:50%','width:240px','height:240px',
+    'margin:-120px 0 0 -120px','border-radius:50%','pointer-events:none',
+    'background:radial-gradient(circle,rgba(168,85,247,.8) 0%,rgba(34,211,216,.6) 33%,rgba(236,72,153,.4) 66%,transparent 100%)',
+    'z-index:9999','opacity:0','transition:none'
+  ].join(';');
+  document.body.appendChild(el);
+  el.style.animation = 'cf-studio-aurora 900ms ease-out forwards';
+  setTimeout(() => el.remove(), 900);
+}
+
+// Inject aurora keyframes once
+const cfAuroraStyle = document.createElement('style');
+cfAuroraStyle.textContent = `@keyframes cf-studio-aurora{0%{opacity:0;transform:scale(0)}20%{opacity:.65;transform:scale(.8)}60%{opacity:.3;transform:scale(2)}100%{opacity:0;transform:scale(3)}}`;
+document.head.appendChild(cfAuroraStyle);
+
+// Cmd/Ctrl+S triggers save feedback
+document.addEventListener('keydown', e => {
+  if ((e.ctrlKey || e.metaKey) && e.key === 's') {
+    e.preventDefault();
+    triggerAuroraCF();
+    // Trigger studio export if available
+    if (window.studio && window.studio.export) {
+      // Don't auto-export on Cmd+S — just show feedback (save is localStorage-based)
+    }
+    // Save layers to localStorage
+    try {
+      const studioCanvas = document.getElementById('studioCanvas');
+      if (studioCanvas) {
+        const savedArt = JSON.parse(localStorage.getItem('cf_studio_art') || '[]');
+        savedArt.unshift({ url: studioCanvas.toDataURL('image/webp', 0.85), ts: Date.now() });
+        localStorage.setItem('cf_studio_art', JSON.stringify(savedArt.slice(0, 20)));
+      }
+    } catch(e) {}
+  }
+});
+</script>
+</body>
+</html>

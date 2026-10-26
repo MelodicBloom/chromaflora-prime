@@ -1,0 +1,2171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ChromaFlora — Cosmic Bioluminescent Design System by Jennipher Troup</title>
+  <meta name="description" content="ChromaFlora is a cosmic bioluminescent design system by Jennipher Troup — 18 live canvas effects, 7-genre music synthesizer, art studio, component lab, and design tokens. Pure HTML/CSS/JS, zero dependencies.">
+  <meta name="keywords" content="ChromaFlora, design system, bioluminescent, glassmorphism, claymorphism, generative art, Web Audio, canvas, Jennipher Troup">
+  <meta name="author" content="Jennipher Troup">
+  <meta property="og:title" content="ChromaFlora — Cosmic Bioluminescent Design System">
+  <meta property="og:description" content="18 live canvas effects, 7-genre music synthesizer, art studio, and component lab. Pure HTML/CSS/JS, zero dependencies.">
+  <meta property="og:type" content="website">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:creator" content="@halcyonminx">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"WebSite","name":"ChromaFlora Design System","author":{"@type":"Person","name":"Jennipher Troup"},"description":"Cosmic bioluminescent design system with generative art and music synthesis."}</script>
+  <style>
+    /* ================================================
+       CHROMAFLORA COSMIC DESIGN SYSTEM v3.0
+       Morphism-Fused Bioluminescent Interface
+       Glassmorphism + Claymorphism + Neumorphism
+    ================================================ */
+
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+
+    :root {
+      /* ── Cosmic Palette ── */
+      --void: #04040f;
+      --abyss: #080818;
+      --deep: #0d0d26;
+      --surface: #13132a;
+      --elevated: #1a1a38;
+      --overlay: #22224a;
+
+      /* ── Bioluminescent Accents ── */
+      --iris: #a855f7;
+      --iris-light: #c084fc;
+      --iris-dark: #7c3aed;
+      --iris-glow: rgba(168, 85, 247, 0.35);
+
+      --aqua: #22d3d8;
+      --aqua-light: #67e8f9;
+      --aqua-dark: #06b6d4;
+      --aqua-glow: rgba(34, 211, 216, 0.35);
+
+      --bloom: #ec4899;
+      --bloom-light: #f472b6;
+      --bloom-dark: #db2777;
+      --bloom-glow: rgba(236, 72, 153, 0.35);
+
+      --ember: #f97316;
+      --ember-light: #fb923c;
+      --viridian: #10b981;
+
+      /* ── Text ── */
+      --text-1: #ffffff;
+      --text-2: rgba(255,255,255,0.75);
+      --text-3: rgba(255,255,255,0.5);
+      --text-4: rgba(255,255,255,0.3);
+
+      /* ── Gradients ── */
+      --grad-cosmic: linear-gradient(135deg, #1a0a2e 0%, #0d0d26 40%, #0a1628 100%);
+      --grad-iris: linear-gradient(135deg, #a855f7, #7c3aed);
+      --grad-aqua: linear-gradient(135deg, #06b6d4, #22d3d8, #67e8f9);
+      --grad-bloom: linear-gradient(135deg, #ec4899, #db2777);
+      --grad-aurora: linear-gradient(135deg, #ec4899 0%, #a855f7 35%, #22d3d8 70%, #10b981 100%);
+      --grad-nebula: linear-gradient(135deg, #f97316, #ec4899, #a855f7, #22d3d8);
+
+      /* ── Glow Shadows ── */
+      --glow-iris: 0 0 25px rgba(168,85,247,0.5), 0 0 60px rgba(168,85,247,0.2);
+      --glow-aqua: 0 0 25px rgba(34,211,216,0.5), 0 0 60px rgba(34,211,216,0.2);
+      --glow-bloom: 0 0 25px rgba(236,72,153,0.5), 0 0 60px rgba(236,72,153,0.2);
+
+      /* ── Glassmorphism ── */
+      --glass-bg: rgba(255,255,255,0.04);
+      --glass-border: rgba(255,255,255,0.10);
+      --glass-blur: blur(32px);
+      --glass-shadow: 0 8px 48px rgba(0,0,0,0.45), inset 0 1px 0 rgba(255,255,255,0.1);
+
+      /* ── Claymorphism ── */
+      --clay-bg: linear-gradient(145deg, rgba(255,255,255,0.12) 0%, rgba(255,255,255,0.04) 100%);
+      --clay-shadow: 6px 6px 16px rgba(0,0,0,0.4), -3px -3px 10px rgba(255,255,255,0.06), inset 0 1px 0 rgba(255,255,255,0.15);
+      --clay-radius: 24px;
+
+      /* ── Neumorphism ── */
+      --neu-bg: rgba(20, 18, 45, 0.9);
+      --neu-shadow-out: 6px 6px 12px rgba(0,0,0,0.4), -3px -3px 8px rgba(255,255,255,0.05);
+      --neu-shadow-in: inset 4px 4px 10px rgba(0,0,0,0.5), inset -2px -2px 6px rgba(255,255,255,0.05);
+
+      /* ── Spacing ── */
+      --s1: 4px; --s2: 8px; --s3: 12px; --s4: 16px;
+      --s5: 20px; --s6: 24px; --s7: 32px; --s8: 48px;
+
+      /* ── Radii ── */
+      --r1: 8px; --r2: 12px; --r3: 16px;
+      --r4: 20px; --r5: 28px; --r6: 40px; --r-pill: 9999px;
+
+      /* ── Motion ── */
+      --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+      --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+      --t-snap: 0.1s cubic-bezier(0.4, 0, 0.2, 1);
+      --t-smooth: 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+      --t-spring: 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    /* ── Reset ── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Inter', -apple-system, sans-serif;
+      background: var(--void);
+      color: var(--text-1);
+      min-height: 100vh;
+      -webkit-font-smoothing: antialiased;
+      cursor: none;
+      overflow-x: hidden;
+    }
+    a { text-decoration: none; color: inherit; }
+    button { font-family: inherit; cursor: pointer; }
+    ::selection { background: var(--iris-glow); color: white; }
+
+    /* ═══════════════════════════════
+       LAYER 0 — COSMIC ENVIRONMENT
+    ═══════════════════════════════ */
+    .env {
+      position: fixed;
+      inset: 0;
+      z-index: -3;
+      background: var(--grad-cosmic);
+      overflow: hidden;
+    }
+    .env-orb {
+      position: absolute;
+      border-radius: 50%;
+      filter: blur(80px);
+      opacity: 0;
+      animation: orb-breathe 18s ease-in-out infinite;
+    }
+    .env-orb--1 {
+      width: 700px; height: 700px;
+      top: -200px; left: -150px;
+      background: radial-gradient(circle, rgba(168,85,247,0.25), transparent 70%);
+      animation-delay: 0s;
+    }
+    .env-orb--2 {
+      width: 600px; height: 600px;
+      bottom: -100px; right: -100px;
+      background: radial-gradient(circle, rgba(34,211,216,0.2), transparent 70%);
+      animation-delay: -6s;
+    }
+    .env-orb--3 {
+      width: 500px; height: 500px;
+      top: 40%; left: 40%;
+      transform: translate(-50%,-50%);
+      background: radial-gradient(circle, rgba(236,72,153,0.15), transparent 70%);
+      animation-delay: -12s;
+    }
+    @keyframes orb-breathe {
+      0%,100% { opacity: 0.6; transform: scale(1); }
+      50% { opacity: 1; transform: scale(1.15); }
+    }
+
+    /* Starfield */
+    .stars {
+      position: fixed;
+      inset: 0;
+      z-index: -2;
+      background-image:
+        radial-gradient(1px 1px at 10% 15%, rgba(255,255,255,0.6) 0%, transparent 100%),
+        radial-gradient(1px 1px at 30% 45%, rgba(255,255,255,0.4) 0%, transparent 100%),
+        radial-gradient(1.5px 1.5px at 55% 25%, rgba(255,255,255,0.7) 0%, transparent 100%),
+        radial-gradient(1px 1px at 75% 70%, rgba(255,255,255,0.5) 0%, transparent 100%),
+        radial-gradient(1px 1px at 90% 10%, rgba(255,255,255,0.6) 0%, transparent 100%),
+        radial-gradient(1px 1px at 20% 80%, rgba(255,255,255,0.3) 0%, transparent 100%),
+        radial-gradient(1.5px 1.5px at 65% 90%, rgba(255,255,255,0.5) 0%, transparent 100%),
+        radial-gradient(1px 1px at 45% 60%, rgba(255,255,255,0.4) 0%, transparent 100%),
+        radial-gradient(2px 2px at 85% 40%, rgba(168,85,247,0.8) 0%, transparent 100%),
+        radial-gradient(1.5px 1.5px at 15% 55%, rgba(34,211,216,0.7) 0%, transparent 100%);
+      animation: star-drift 60s linear infinite;
+    }
+    @keyframes star-drift {
+      0% { transform: translateY(0); }
+      100% { transform: translateY(-30px); }
+    }
+
+    /* ═══════════════════════════════
+       CUSTOM CURSOR
+    ═══════════════════════════════ */
+    .cursor-main {
+      width: 12px; height: 12px;
+      background: white;
+      border-radius: 50%;
+      position: fixed;
+      pointer-events: none;
+      z-index: 10000;
+      transform: translate(-50%,-50%);
+      transition: width 0.15s, height 0.15s, opacity 0.15s;
+      mix-blend-mode: difference;
+    }
+    .cursor-trail {
+      width: 180px; height: 180px;
+      background: radial-gradient(circle, rgba(168,85,247,0.45) 0%, rgba(34,211,216,0.25) 40%, transparent 70%);
+      position: fixed;
+      pointer-events: none;
+      z-index: 9999;
+      border-radius: 50%;
+      transform: translate(-50%,-50%);
+      filter: blur(28px);
+      mix-blend-mode: screen;
+      animation: cursor-morph 7s ease-in-out infinite;
+      transition: left 0.12s ease, top 0.12s ease;
+    }
+    @keyframes cursor-morph {
+      0%   { border-radius: 40% 60% 70% 30% / 45% 45% 55% 55%; }
+      25%  { border-radius: 70% 30% 45% 55% / 30% 40% 60% 70%; }
+      50%  { border-radius: 28% 72% 62% 38% / 68% 30% 70% 32%; }
+      75%  { border-radius: 55% 45% 35% 65% / 35% 68% 32% 65%; }
+      100% { border-radius: 40% 60% 70% 30% / 45% 45% 55% 55%; }
+    }
+
+    /* ═══════════════════════════════
+       HEADER — Glassmorphism
+    ═══════════════════════════════ */
+    .header {
+      position: sticky;
+      top: 0;
+      z-index: 200;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 14px 32px;
+      background: rgba(8, 8, 24, 0.65);
+      backdrop-filter: blur(40px) saturate(1.8);
+      -webkit-backdrop-filter: blur(40px) saturate(1.8);
+      border-bottom: 1px solid var(--glass-border);
+      box-shadow: 0 1px 0 rgba(255,255,255,0.05), 0 4px 32px rgba(0,0,0,0.3);
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .logo-mark {
+      width: 38px; height: 38px;
+      border-radius: 12px;
+      background: var(--grad-aurora);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: var(--glow-iris), var(--clay-shadow);
+      transition: var(--t-spring);
+      position: relative;
+      overflow: hidden;
+    }
+    .logo-mark::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(135deg, rgba(255,255,255,0.3) 0%, transparent 60%);
+      border-radius: inherit;
+    }
+    .logo-mark:hover {
+      transform: scale(1.1) rotate(8deg);
+      box-shadow: var(--glow-aqua), var(--clay-shadow);
+    }
+    .logo-mark svg { width: 20px; height: 20px; }
+    .logo-name {
+      font-size: 17px;
+      font-weight: 700;
+      letter-spacing: -0.3px;
+      background: var(--grad-aurora);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .logo-badge {
+      font-size: 9px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--text-3);
+      background: rgba(255,255,255,0.06);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 100px;
+      padding: 2px 7px;
+    }
+
+    .nav {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+    .nav-link {
+      position: relative;
+      padding: 6px 14px;
+      border-radius: var(--r-pill);
+      font-size: 13.5px;
+      font-weight: 500;
+      color: var(--text-3);
+      transition: color var(--t-snap), background var(--t-snap);
+    }
+    .nav-link:hover { color: var(--text-1); background: rgba(255,255,255,0.06); }
+    .nav-link.active {
+      color: var(--text-1);
+      background: rgba(168,85,247,0.12);
+    }
+    .nav-link.active::after {
+      content: '';
+      position: absolute;
+      bottom: -14px;
+      left: 50%; transform: translateX(-50%);
+      width: 24px; height: 2px;
+      background: var(--grad-aqua);
+      border-radius: 1px;
+      box-shadow: var(--glow-aqua);
+    }
+
+    .nav-actions {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-left: 12px;
+    }
+    .nav-pill {
+      padding: 7px 16px;
+      border-radius: var(--r-pill);
+      font-size: 13px;
+      font-weight: 600;
+      border: 1px solid rgba(168,85,247,0.4);
+      background: rgba(168,85,247,0.08);
+      color: var(--iris-light);
+      transition: var(--t-snap);
+    }
+    .nav-pill:hover {
+      background: rgba(168,85,247,0.18);
+      border-color: var(--iris);
+      box-shadow: var(--glow-iris);
+    }
+    .header-icon-btn {
+      width: 36px; height: 36px; border-radius: 10px; border: 1px solid rgba(255,255,255,0.1);
+      background: rgba(255,255,255,0.05); color: rgba(255,255,255,0.7); cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      transition: var(--t-snap); flex-shrink: 0;
+    }
+    .header-icon-btn:hover { background: rgba(168,85,247,0.18); border-color: rgba(168,85,247,0.35); color: white; }
+
+    /* Nav drawer content styles */
+    .nav-drawer-header { padding: 28px 28px 16px; display: flex; align-items: center; justify-content: space-between; }
+    .nav-drawer-logo { font-size: 18px; font-weight: 800; }
+    .nav-drawer-close { width: 32px; height: 32px; border-radius: 50%; border: 1px solid rgba(255,255,255,0.1); background: rgba(255,255,255,0.05); color: rgba(255,255,255,0.6); cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 14px; transition: var(--t-snap); }
+    .nav-drawer-close:hover { background: rgba(236,72,153,0.2); color: white; }
+    .nav-drawer-links { padding: 8px 16px; }
+    .nav-drawer-link { display: flex; align-items: center; gap: 14px; padding: 14px 16px; border-radius: 12px; color: rgba(255,255,255,0.7); text-decoration: none; font-size: 15px; font-weight: 500; transition: var(--t-snap); margin-bottom: 2px; }
+    .nav-drawer-link:hover { background: rgba(168,85,247,0.12); color: white; transform: translateX(4px); }
+    .nav-drawer-link .dicon { width: 38px; height: 38px; border-radius: 10px; border: 1px solid rgba(255,255,255,0.08); background: rgba(255,255,255,0.04); display: flex; align-items: center; justify-content: center; font-size: 18px; flex-shrink: 0; transition: var(--t-snap); }
+    .nav-drawer-link:hover .dicon { background: rgba(168,85,247,0.2); border-color: rgba(168,85,247,0.3); }
+    .nav-drawer-link .dtitle { font-weight: 600; }
+    .nav-drawer-link .dsub { font-size: 11px; color: rgba(255,255,255,0.35); margin-top: 1px; }
+    .nav-drawer-sep { height: 1px; background: rgba(255,255,255,0.06); margin: 12px 28px; }
+    .avatar-ring {
+      width: 34px; height: 34px;
+      border-radius: 50%;
+      background: var(--grad-nebula);
+      box-shadow: 0 0 0 2px rgba(168,85,247,0.4);
+      position: relative;
+      transition: var(--t-spring);
+    }
+    .avatar-ring::after {
+      content: '';
+      position: absolute;
+      inset: 2px;
+      border-radius: 50%;
+      background: var(--grad-aurora);
+      opacity: 0.85;
+    }
+    .avatar-ring:hover {
+      box-shadow: 0 0 0 3px var(--iris), var(--glow-iris);
+      transform: scale(1.1);
+    }
+
+    /* ═══════════════════════════════
+       LAYOUT
+    ═══════════════════════════════ */
+    .page { max-width: 1280px; margin: 0 auto; padding: var(--s6) var(--s6) var(--s8); }
+    .section { margin-bottom: var(--s8); }
+    .section-header { margin-bottom: var(--s6); }
+    .section-eyebrow {
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      color: var(--aqua);
+      margin-bottom: var(--s2);
+    }
+    .section-title {
+      font-size: 22px;
+      font-weight: 700;
+      letter-spacing: -0.4px;
+    }
+
+    /* ═══════════════════════════════
+       HERO — Glassmorphism + Clay
+    ═══════════════════════════════ */
+    .hero {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: var(--s6);
+      margin-bottom: var(--s7);
+      min-height: 340px;
+    }
+    @media (max-width: 768px) { .hero { grid-template-columns: 1fr; } }
+
+    .hero-glass {
+      background: rgba(255,255,255,0.035);
+      backdrop-filter: var(--glass-blur);
+      -webkit-backdrop-filter: var(--glass-blur);
+      border: 1px solid var(--glass-border);
+      border-radius: 28px;
+      box-shadow: var(--glass-shadow);
+      padding: var(--s8) var(--s7);
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      position: relative;
+      overflow: hidden;
+      transition: var(--t-smooth);
+    }
+    .hero-glass::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), rgba(168,85,247,0.4), rgba(34,211,216,0.3), transparent);
+    }
+    .hero-glass::after {
+      content: '';
+      position: absolute;
+      inset: -1px;
+      border-radius: 28px;
+      background: linear-gradient(135deg, rgba(168,85,247,0.06), rgba(34,211,216,0.03), transparent 60%);
+      pointer-events: none;
+    }
+    .hero-glass:hover {
+      background: rgba(255,255,255,0.05);
+      border-color: rgba(168,85,247,0.25);
+      box-shadow: var(--glass-shadow), var(--glow-iris);
+      transform: translateY(-4px);
+    }
+
+    .hero-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 5px 12px;
+      border-radius: 100px;
+      background: rgba(168,85,247,0.12);
+      border: 1px solid rgba(168,85,247,0.25);
+      font-size: 11.5px;
+      font-weight: 600;
+      color: var(--iris-light);
+      margin-bottom: var(--s5);
+      width: fit-content;
+    }
+    .hero-tag-dot {
+      width: 6px; height: 6px;
+      border-radius: 50%;
+      background: var(--iris);
+      box-shadow: 0 0 8px var(--iris);
+      animation: pulse-dot 2s ease-in-out infinite;
+    }
+    @keyframes pulse-dot {
+      0%,100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.5; transform: scale(0.7); }
+    }
+    .hero-h1 {
+      font-size: 46px;
+      font-weight: 800;
+      line-height: 1.05;
+      letter-spacing: -1.5px;
+      margin-bottom: var(--s4);
+      background: linear-gradient(135deg, #fff 30%, var(--aqua-light) 70%, var(--iris-light) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .hero-sub {
+      font-size: 15px;
+      line-height: 1.65;
+      color: var(--text-3);
+      margin-bottom: var(--s7);
+      max-width: 36ch;
+    }
+    .hero-actions { display: flex; gap: var(--s3); flex-wrap: wrap; }
+
+    /* Clay Card (Hero right) */
+    .hero-clay {
+      border-radius: 28px;
+      background: var(--clay-bg);
+      box-shadow: var(--clay-shadow);
+      border: 1px solid rgba(255,255,255,0.1);
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      animation: aurora-shift 12s ease-in-out infinite alternate;
+    }
+    @keyframes aurora-shift {
+      0%   { background-position: 0% 50%; filter: hue-rotate(0deg) saturate(1.2); }
+      100% { background-position: 100% 50%; filter: hue-rotate(40deg) saturate(1.6); }
+    }
+    .hero-clay-inner {
+      position: absolute;
+      inset: 0;
+      background: var(--grad-aurora);
+      opacity: 0.7;
+      animation: aurora-morph 14s ease-in-out infinite;
+    }
+    @keyframes aurora-morph {
+      0%,100% { border-radius: 28px; }
+      25% { border-radius: 60% 40% 50% 50% / 40% 60% 40% 60%; }
+      50% { border-radius: 40% 60% 60% 40% / 60% 40% 60% 40%; }
+      75% { border-radius: 50% 50% 40% 60% / 50% 50% 60% 40%; }
+    }
+    .hero-clay-blur {
+      position: absolute;
+      inset: -20%;
+      background: inherit;
+      filter: blur(40px);
+      opacity: 0.4;
+    }
+    .hero-clay-content {
+      position: relative;
+      z-index: 2;
+      text-align: center;
+    }
+    .hero-clay-glyph {
+      font-size: 100px;
+      line-height: 1;
+      filter: drop-shadow(0 0 30px rgba(255,255,255,0.4));
+      animation: float-glyph 4s ease-in-out infinite;
+    }
+    @keyframes float-glyph {
+      0%,100% { transform: translateY(0) scale(1); }
+      50% { transform: translateY(-12px) scale(1.05); }
+    }
+    .hero-clay-label {
+      margin-top: 16px;
+      font-size: 13px;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.7);
+      text-shadow: 0 0 20px rgba(255,255,255,0.5);
+    }
+
+    /* ═══════════════════════════════
+       BUTTONS
+    ═══════════════════════════════ */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      padding: 11px 22px;
+      border-radius: var(--r-pill);
+      font-size: 13.5px;
+      font-weight: 600;
+      border: none;
+      transition: var(--t-snap);
+      position: relative;
+      overflow: hidden;
+    }
+    .btn::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(135deg, rgba(255,255,255,0.15) 0%, transparent 60%);
+      border-radius: inherit;
+      opacity: 0;
+      transition: opacity var(--t-snap);
+    }
+    .btn:hover::before { opacity: 1; }
+
+    .btn-primary {
+      background: var(--grad-aqua);
+      color: var(--void);
+      box-shadow: var(--glow-aqua), 0 2px 12px rgba(0,0,0,0.3);
+    }
+    .btn-primary:hover {
+      transform: scale(1.04) translateY(-1px);
+      box-shadow: 0 0 40px rgba(34,211,216,0.7), 0 0 80px rgba(34,211,216,0.3);
+    }
+    .btn-glass {
+      background: rgba(255,255,255,0.06);
+      backdrop-filter: blur(20px);
+      border: 1px solid rgba(255,255,255,0.12);
+      color: var(--text-2);
+      box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+    }
+    .btn-glass:hover {
+      background: rgba(255,255,255,0.1);
+      border-color: rgba(168,85,247,0.4);
+      color: var(--text-1);
+      box-shadow: 0 4px 20px rgba(0,0,0,0.2), var(--glow-iris);
+    }
+    .btn-clay {
+      background: linear-gradient(145deg, rgba(168,85,247,0.3), rgba(168,85,247,0.1));
+      border: 1px solid rgba(168,85,247,0.35);
+      color: var(--iris-light);
+      box-shadow: var(--clay-shadow);
+    }
+    .btn-clay:hover {
+      transform: scale(1.04) translateY(-2px);
+      box-shadow: var(--glow-iris), var(--clay-shadow);
+    }
+
+    /* ═══════════════════════════════
+       MORPHISM SHOWCASE STRIP
+    ═══════════════════════════════ */
+    .morph-strip {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: var(--s4);
+      margin-bottom: var(--s7);
+    }
+    @media (max-width: 900px) { .morph-strip { grid-template-columns: repeat(2, 1fr); } }
+
+    .morph-card {
+      border-radius: 20px;
+      padding: var(--s6);
+      min-height: 140px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      position: relative;
+      overflow: hidden;
+      transition: var(--t-smooth);
+      cursor: default;
+    }
+
+    /* Glassmorphism variant */
+    .morph-glass {
+      background: rgba(255,255,255,0.04);
+      backdrop-filter: blur(30px) saturate(1.5);
+      -webkit-backdrop-filter: blur(30px) saturate(1.5);
+      border: 1px solid rgba(255,255,255,0.10);
+      box-shadow: 0 8px 32px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.12);
+    }
+    .morph-glass:hover {
+      border-color: rgba(34,211,216,0.3);
+      box-shadow: 0 12px 48px rgba(0,0,0,0.4), var(--glow-aqua), inset 0 1px 0 rgba(255,255,255,0.15);
+      transform: translateY(-4px);
+    }
+
+    /* Claymorphism variant */
+    .morph-clay {
+      background: linear-gradient(145deg, rgba(168,85,247,0.18), rgba(168,85,247,0.06));
+      border: 1px solid rgba(168,85,247,0.2);
+      box-shadow: 8px 8px 20px rgba(0,0,0,0.4), -4px -4px 12px rgba(255,255,255,0.06), inset 0 1px 0 rgba(255,255,255,0.2);
+    }
+    .morph-clay:hover {
+      transform: translateY(-6px) scale(1.02);
+      box-shadow: 12px 12px 28px rgba(0,0,0,0.4), -4px -4px 12px rgba(255,255,255,0.06), inset 0 1px 0 rgba(255,255,255,0.2), var(--glow-iris);
+    }
+
+    /* Neumorphism variant */
+    .morph-neu {
+      background: var(--neu-bg);
+      border: 1px solid rgba(255,255,255,0.04);
+      box-shadow: var(--neu-shadow-out);
+    }
+    .morph-neu:hover {
+      box-shadow: 8px 8px 16px rgba(0,0,0,0.5), -4px -4px 12px rgba(255,255,255,0.06), 0 0 0 1px rgba(34,211,216,0.25), var(--glow-aqua);
+      transform: translateY(-3px);
+    }
+
+    /* Material variant */
+    .morph-material {
+      background: linear-gradient(135deg, rgba(236,72,153,0.14), rgba(249,115,22,0.08));
+      border: 1px solid rgba(236,72,153,0.2);
+      box-shadow: 0 4px 24px rgba(236,72,153,0.15), 0 1px 0 rgba(255,255,255,0.06);
+    }
+    .morph-material:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 8px 32px rgba(236,72,153,0.25), var(--glow-bloom);
+    }
+
+    .morph-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.15), transparent);
+    }
+    .morph-icon {
+      width: 42px; height: 42px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+      margin-bottom: var(--s3);
+      position: relative;
+      box-shadow: var(--clay-shadow);
+    }
+    .morph-icon--aqua { background: linear-gradient(135deg, var(--aqua-dark), var(--aqua)); }
+    .morph-icon--iris { background: linear-gradient(135deg, var(--iris-dark), var(--iris)); }
+    .morph-icon--bloom { background: linear-gradient(135deg, var(--bloom-dark), var(--bloom)); }
+    .morph-icon--ember { background: linear-gradient(135deg, #c2410c, var(--ember)); }
+    .morph-label {
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--text-3);
+      margin-bottom: 4px;
+    }
+    .morph-name {
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--text-1);
+      margin-bottom: 4px;
+    }
+    .morph-desc {
+      font-size: 12px;
+      color: var(--text-3);
+      line-height: 1.5;
+    }
+
+    /* ═══════════════════════════════
+       GALLERY — 18-tile procedural art
+    ═══════════════════════════════ */
+    .gallery-grid {
+      display: grid;
+      grid-template-columns: repeat(6, 1fr);
+      grid-auto-rows: 180px;
+      gap: 14px;
+    }
+    @media (max-width: 1200px) { .gallery-grid { grid-template-columns: repeat(4, 1fr); } }
+    @media (max-width: 800px)  { .gallery-grid { grid-template-columns: repeat(3, 1fr); } }
+    @media (max-width: 540px)  { .gallery-grid { grid-template-columns: repeat(2, 1fr); } }
+
+    /* Wide tiles */
+    .gt--abstract-flows, .gt--coloring-book, .gt--vortex { grid-column: span 2; }
+    /* Tall tiles */
+    .gt--mandala, .gt--quilling { grid-row: span 2; }
+
+    .gallery-tile {
+      border-radius: 18px;
+      overflow: hidden;
+      position: relative;
+      cursor: pointer;
+      transition: var(--t-smooth);
+      border: 1px solid rgba(255,255,255,0.07);
+    }
+    .gallery-tile:hover { transform: scale(1.04) translateY(-5px); z-index: 5; border-color: rgba(255,255,255,0.18); }
+    .gallery-tile:hover .gallery-tile-overlay { opacity: 1; }
+    .gallery-tile:hover .gallery-tile-label { transform: translateY(0); }
+
+    /* Canvas fills the tile */
+    .gallery-tile canvas {
+      position: absolute;
+      inset: 0;
+      width: 100% !important;
+      height: 100% !important;
+      display: block;
+    }
+
+    /* Fallback bg per tile (shown before canvas loads) */
+    .gt--abstract-flows  { background: linear-gradient(135deg,#ec4899,#a855f7,#22d3d8); }
+    .gt--liquid-neon     { background: #040414; }
+    .gt--plasma-drift    { background: #050010; }
+    .gt--cosmic-tide     { background: #01010e; }
+    .gt--floral-glow     { background: #030112; }
+    .gt--deep-space      { background: #010108; }
+    .gt--liquid-mercury  { background: #080820; }
+    .gt--tectonic-shift  { background: #0a0508; }
+    .gt--ripple          { background: #020214; }
+    .gt--bubble          { background: #04091a; }
+    .gt--crystallize     { background: #020a18; }
+    .gt--liquify         { background: #080418; }
+    .gt--paper-layer     { background: #1a1408; }
+    .gt--quilling        { background: #0a0614; }
+    .gt--coloring-book   { background: #02020e; }
+    .gt--acid-pour       { background: #050214; }
+    .gt--prismatic       { background: #030108; }
+    .gt--vortex          { background: #020110; }
+
+    .gallery-tile-overlay {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(to top, rgba(4,4,15,0.92) 0%, rgba(4,4,15,0.3) 40%, transparent 100%);
+      opacity: 0;
+      transition: opacity var(--t-smooth);
+      display: flex;
+      align-items: flex-end;
+      z-index: 10;
+    }
+    .gallery-tile-label {
+      padding: 14px 16px;
+      transform: translateY(8px);
+      transition: transform var(--t-smooth);
+    }
+    .gallery-tile-name {
+      font-size: 13px;
+      font-weight: 700;
+      color: white;
+      margin-bottom: 2px;
+    }
+    .gallery-tile-meta {
+      font-size: 10px;
+      color: rgba(255,255,255,0.55);
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+    .gallery-tile-meta::before {
+      content: '◆';
+      font-size: 6px;
+      color: var(--aqua);
+    }
+
+    /* Glow border ring on hover */
+    .gallery-tile::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      border-radius: 18px;
+      box-shadow: inset 0 0 0 1px rgba(255,255,255,0);
+      transition: box-shadow var(--t-snap);
+      pointer-events: none;
+      z-index: 20;
+    }
+    .gallery-tile:hover::after {
+      box-shadow: inset 0 0 0 1px rgba(255,255,255,0.22), 0 0 40px rgba(168,85,247,0.25);
+    }
+
+    /* Click burst overlay */
+    .gallery-tile .click-burst {
+      position: absolute;
+      inset: 0;
+      z-index: 15;
+      pointer-events: none;
+      border-radius: 18px;
+    }
+
+    /* ═══════════════════════════════
+       COMPONENTS PANEL — Bottom row
+    ═══════════════════════════════ */
+    .components-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: var(--s6);
+    }
+    @media (max-width: 900px) { .components-row { grid-template-columns: 1fr; } }
+
+    /* Player — Claymorphism */
+    .player-card {
+      border-radius: 24px;
+      background: linear-gradient(145deg, rgba(20,15,50,0.95), rgba(14,12,36,0.98));
+      border: 1px solid rgba(168,85,247,0.18);
+      box-shadow: var(--clay-shadow), var(--glow-iris);
+      padding: var(--s6);
+      position: relative;
+      overflow: hidden;
+      transition: var(--t-smooth);
+    }
+    .player-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 10px 10px 30px rgba(0,0,0,0.5), -4px -4px 14px rgba(255,255,255,0.06), inset 0 1px 0 rgba(255,255,255,0.15), var(--glow-iris);
+    }
+    .player-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, var(--iris), transparent);
+    }
+
+    .player-art {
+      width: 100%;
+      padding-bottom: 80%;
+      border-radius: 16px;
+      background: radial-gradient(ellipse at 35% 35%, var(--iris), var(--bloom), var(--aqua));
+      position: relative;
+      margin-bottom: var(--s5);
+      box-shadow: var(--glow-iris);
+      overflow: hidden;
+    }
+    .player-art::before {
+      content: '';
+      position: absolute;
+      top: 15%; left: 15%;
+      width: 40%; height: 40%;
+      background: radial-gradient(ellipse, rgba(255,230,180,0.7), transparent);
+      border-radius: 50%;
+      filter: blur(16px);
+    }
+    .player-art::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(135deg, rgba(255,255,255,0.2) 0%, transparent 50%);
+    }
+    .player-art-inner {
+      position: absolute;
+      inset: 0;
+      background: inherit;
+      filter: blur(0);
+      animation: art-pulse 6s ease-in-out infinite;
+    }
+    @keyframes art-pulse {
+      0%,100% { opacity: 0; }
+      50% { opacity: 1; transform: scale(1.05); filter: blur(8px); }
+    }
+
+    .player-title { font-size: 16px; font-weight: 700; margin-bottom: 2px; }
+    .player-artist { font-size: 12px; color: var(--text-3); margin-bottom: var(--s4); }
+
+    .waveform {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 2.5px;
+      height: 36px;
+      margin-bottom: var(--s3);
+    }
+    .waveform-bar {
+      width: 3px;
+      border-radius: 2px;
+      background: var(--grad-aqua);
+      animation: wave-bounce 1.2s ease-in-out infinite;
+    }
+    @keyframes wave-bounce {
+      0%,100% { transform: scaleY(0.3); opacity: 0.5; }
+      50% { transform: scaleY(1); opacity: 1; }
+    }
+
+    .prog-track {
+      height: 4px;
+      background: rgba(255,255,255,0.08);
+      border-radius: 2px;
+      margin-bottom: var(--s5);
+      overflow: hidden;
+      position: relative;
+    }
+    .prog-fill {
+      width: 38%;
+      height: 100%;
+      background: var(--grad-aqua);
+      border-radius: 2px;
+      box-shadow: 0 0 10px var(--aqua);
+    }
+    .prog-fill::after {
+      content: '';
+      position: absolute;
+      right: 0; top: 50%;
+      transform: translate(50%,-50%);
+      width: 10px; height: 10px;
+      border-radius: 50%;
+      background: var(--aqua-light);
+      box-shadow: var(--glow-aqua);
+    }
+
+    .controls {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: var(--s4);
+    }
+    .ctrl-btn {
+      width: 36px; height: 36px;
+      border-radius: 50%;
+      border: 1px solid rgba(255,255,255,0.1);
+      background: rgba(255,255,255,0.06);
+      color: var(--text-2);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+      transition: var(--t-snap);
+    }
+    .ctrl-btn:hover { background: rgba(255,255,255,0.12); color: var(--text-1); }
+    .ctrl-play {
+      width: 48px; height: 48px;
+      background: var(--grad-bloom);
+      border: none;
+      box-shadow: var(--glow-bloom);
+      font-size: 20px;
+    }
+    .ctrl-play:hover { transform: scale(1.1); box-shadow: 0 0 40px rgba(236,72,153,0.7); }
+
+    /* Toggles Panel — Neumorphism */
+    .toggles-panel {
+      border-radius: 24px;
+      background: linear-gradient(145deg, rgba(16,14,36,0.98), rgba(12,10,28,0.99));
+      border: 1px solid rgba(255,255,255,0.05);
+      box-shadow: var(--neu-shadow-out);
+      padding: var(--s6);
+      transition: var(--t-smooth);
+    }
+    .toggles-panel:hover {
+      box-shadow: 10px 10px 24px rgba(0,0,0,0.5), -4px -4px 12px rgba(255,255,255,0.05), 0 0 0 1px rgba(34,211,216,0.15);
+      transform: translateY(-3px);
+    }
+    .toggles-panel::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(34,211,216,0.3), transparent);
+    }
+    .panel-title {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text-3);
+      text-transform: uppercase;
+      letter-spacing: 0.09em;
+      margin-bottom: var(--s5);
+    }
+    .toggle-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: var(--s3) 0;
+      border-bottom: 1px solid rgba(255,255,255,0.04);
+    }
+    .toggle-row:last-of-type { border-bottom: none; }
+    .toggle-info { }
+    .toggle-name { font-size: 13.5px; font-weight: 500; margin-bottom: 1px; }
+    .toggle-sub { font-size: 11px; color: var(--text-3); }
+    .toggle-switch {
+      width: 48px; height: 26px;
+      border-radius: 13px;
+      background: rgba(255,255,255,0.08);
+      box-shadow: var(--neu-shadow-in);
+      position: relative;
+      cursor: pointer;
+      transition: var(--t-snap);
+      flex-shrink: 0;
+    }
+    .toggle-switch::after {
+      content: '';
+      position: absolute;
+      top: 3px; left: 3px;
+      width: 20px; height: 20px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.4);
+      box-shadow: 2px 2px 5px rgba(0,0,0,0.4);
+      transition: var(--t-snap);
+    }
+    .toggle-switch.on {
+      background: linear-gradient(90deg, var(--aqua-dark), var(--iris));
+      box-shadow: inset 0 1px 4px rgba(0,0,0,0.3), var(--glow-aqua);
+    }
+    .toggle-switch.on::after {
+      left: 25px;
+      background: white;
+      box-shadow: 0 0 8px rgba(255,255,255,0.5);
+    }
+    .slider-group { margin-top: var(--s4); }
+    .slider-label {
+      display: flex;
+      justify-content: space-between;
+      font-size: 12px;
+      color: var(--text-3);
+      margin-bottom: 7px;
+    }
+    .slider-track {
+      height: 6px;
+      background: rgba(255,255,255,0.06);
+      border-radius: 3px;
+      margin-bottom: 12px;
+      position: relative;
+      box-shadow: var(--neu-shadow-in);
+    }
+    .slider-fill-bar {
+      height: 100%;
+      border-radius: 3px;
+      position: relative;
+    }
+    .slider-fill-bar--aqua { background: var(--grad-aqua); box-shadow: 0 0 8px var(--aqua); }
+    .slider-fill-bar--iris { background: var(--grad-iris); box-shadow: 0 0 8px var(--iris); }
+    .slider-fill-bar--bloom { background: var(--grad-bloom); box-shadow: 0 0 8px var(--bloom); }
+    .slider-fill-bar::after {
+      content: '';
+      position: absolute;
+      right: -1px; top: 50%;
+      transform: translateY(-50%);
+      width: 14px; height: 14px;
+      border-radius: 50%;
+      background: white;
+      box-shadow: 0 0 0 3px rgba(255,255,255,0.1), 2px 2px 6px rgba(0,0,0,0.4);
+    }
+
+    /* Color Tokens panel */
+    .tokens-panel {
+      border-radius: 24px;
+      background: rgba(255,255,255,0.025);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border: 1px solid rgba(255,255,255,0.07);
+      box-shadow: var(--glass-shadow);
+      padding: var(--s6);
+      transition: var(--t-smooth);
+    }
+    .tokens-panel:hover {
+      transform: translateY(-4px);
+      border-color: rgba(168,85,247,0.2);
+      box-shadow: var(--glass-shadow), var(--glow-iris);
+    }
+    .token-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: var(--s2);
+      margin-bottom: var(--s5);
+    }
+    .token-swatch {
+      height: 44px;
+      border-radius: 10px;
+      position: relative;
+      transition: var(--t-snap);
+      cursor: pointer;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+    }
+    .token-swatch::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      border-radius: 10px;
+      background: linear-gradient(135deg, rgba(255,255,255,0.25) 0%, transparent 60%);
+    }
+    .token-swatch:hover { transform: scale(1.12) translateY(-3px); }
+    .ts-1 { background: var(--iris); box-shadow: var(--glow-iris); }
+    .ts-2 { background: var(--aqua); box-shadow: var(--glow-aqua); }
+    .ts-3 { background: var(--bloom); box-shadow: var(--glow-bloom); }
+    .ts-4 { background: var(--ember); box-shadow: 0 0 15px rgba(249,115,22,0.5); }
+    .ts-5 { background: var(--iris-light); }
+    .ts-6 { background: var(--aqua-light); }
+    .ts-7 { background: var(--bloom-light); }
+    .ts-8 { background: var(--viridian); box-shadow: 0 0 15px rgba(16,185,129,0.5); }
+
+    .token-rows { display: flex; flex-direction: column; gap: var(--s2); }
+    .token-row {
+      display: flex;
+      align-items: center;
+      gap: var(--s3);
+      padding: 8px 12px;
+      border-radius: 10px;
+      background: rgba(255,255,255,0.03);
+      border: 1px solid rgba(255,255,255,0.05);
+      transition: var(--t-snap);
+      cursor: pointer;
+    }
+    .token-row:hover { background: rgba(255,255,255,0.06); border-color: rgba(255,255,255,0.1); }
+    .token-dot {
+      width: 28px; height: 28px;
+      border-radius: 8px;
+      flex-shrink: 0;
+      position: relative;
+    }
+    .token-dot::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      border-radius: 8px;
+      background: linear-gradient(135deg, rgba(255,255,255,0.25) 0%, transparent 60%);
+    }
+    .td-iris { background: var(--grad-iris); box-shadow: var(--glow-iris); }
+    .td-aqua { background: var(--grad-aqua); box-shadow: var(--glow-aqua); }
+    .td-bloom { background: var(--grad-bloom); box-shadow: var(--glow-bloom); }
+    .td-ember { background: linear-gradient(135deg, #c2410c, var(--ember)); }
+    .token-info { flex: 1; }
+    .token-name { font-size: 12px; font-weight: 600; margin-bottom: 1px; }
+    .token-val { font-size: 10px; color: var(--text-3); font-family: 'SF Mono', 'Fira Code', monospace; }
+    .token-chip {
+      font-size: 10px;
+      font-weight: 600;
+      padding: 2px 8px;
+      border-radius: 100px;
+      background: rgba(255,255,255,0.06);
+      color: var(--text-3);
+    }
+
+    /* ═══════════════════════════════
+       FOOTER
+    ═══════════════════════════════ */
+    .footer-bar {
+      border-top: 1px solid rgba(255,255,255,0.05);
+      padding: var(--s5) var(--s6);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: rgba(4,4,15,0.6);
+      backdrop-filter: blur(20px);
+      font-size: 12px;
+      color: var(--text-4);
+    }
+    .footer-status {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .status-dot {
+      width: 7px; height: 7px;
+      border-radius: 50%;
+      background: var(--viridian);
+      box-shadow: 0 0 8px var(--viridian);
+      animation: pulse-dot 2.5s ease-in-out infinite;
+    }
+    .footer-links { display: flex; gap: var(--s5); }
+    .footer-link { color: var(--text-4); transition: color var(--t-snap); }
+    .footer-link:hover { color: var(--text-2); }
+
+    /* ═══════════════════════════════
+       FILTER CHIPS
+    ═══════════════════════════════ */
+    .chip-bar {
+      display: flex;
+      gap: var(--s2);
+      flex-wrap: wrap;
+      margin-bottom: var(--s5);
+    }
+    .chip {
+      padding: 6px 14px;
+      border-radius: var(--r-pill);
+      font-size: 12.5px;
+      font-weight: 500;
+      border: 1px solid rgba(255,255,255,0.1);
+      background: rgba(255,255,255,0.04);
+      color: var(--text-3);
+      cursor: pointer;
+      transition: var(--t-snap);
+    }
+    .chip:hover {
+      border-color: rgba(255,255,255,0.2);
+      color: var(--text-2);
+      background: rgba(255,255,255,0.07);
+    }
+    .chip.active {
+      background: rgba(168,85,247,0.15);
+      border-color: rgba(168,85,247,0.4);
+      color: var(--iris-light);
+      box-shadow: 0 0 12px rgba(168,85,247,0.2);
+    }
+
+    /* ═══════════════════════════════
+       EFFECTS — Reveal Animations
+    ═══════════════════════════════ */
+    .reveal {
+      opacity: 0;
+      transform: translateY(28px);
+      transition: opacity 0.7s var(--ease-out-expo), transform 0.7s var(--ease-out-expo);
+    }
+    .reveal.revealed {
+      opacity: 1;
+      transform: translateY(0);
+    }
+    .reveal-left {
+      opacity: 0;
+      transform: translateX(-28px);
+      transition: opacity 0.7s var(--ease-out-expo), transform 0.7s var(--ease-out-expo);
+    }
+    .reveal-left.revealed { opacity: 1; transform: translateX(0); }
+    .reveal-scale {
+      opacity: 0;
+      transform: scale(0.9);
+      transition: opacity 0.6s var(--ease-out-expo), transform 0.6s var(--ease-spring);
+    }
+    .reveal-scale.revealed { opacity: 1; transform: scale(1); }
+
+    /* ═══════════════════════════════
+       EFFECTS — Aura Card
+    ═══════════════════════════════ */
+    .aura-card {
+      --aura-x: 50%;
+      --aura-y: 50%;
+      --aura-opacity: 0;
+    }
+    .aura-card::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      border-radius: inherit;
+      background: radial-gradient(
+        circle 160px at var(--aura-x) var(--aura-y),
+        rgba(168,85,247,0.18),
+        rgba(34,211,216,0.08) 40%,
+        transparent 70%
+      );
+      opacity: var(--aura-opacity);
+      transition: opacity 0.4s ease;
+      pointer-events: none;
+      z-index: 1;
+    }
+
+    /* ═══════════════════════════════
+       EFFECTS — Ripple Keyframe
+    ═══════════════════════════════ */
+    @keyframes ripple-expand {
+      0%   { transform: scale(0); opacity: 1; }
+      100% { transform: scale(1); opacity: 0; }
+    }
+
+    /* ═══════════════════════════════
+       EFFECTS — Tilt Card Preserve-3D
+    ═══════════════════════════════ */
+    .tilt-card {
+      transform-style: preserve-3d;
+      will-change: transform;
+    }
+    .tilt-card > * { transform: translateZ(4px); }
+
+    /* ═══════════════════════════════
+       EFFECTS — Scramble lines
+    ═══════════════════════════════ */
+    .scramble-line {
+      display: block;
+    }
+
+    /* ═══════════════════════════════
+       EFFECTS — Stats row
+    ═══════════════════════════════ */
+    .stats-row {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: var(--s4);
+      margin-bottom: var(--s7);
+    }
+    @media (max-width: 900px) { .stats-row { grid-template-columns: repeat(2,1fr); } }
+    .stat-card {
+      border-radius: 18px;
+      padding: var(--s5) var(--s6);
+      background: rgba(255,255,255,0.03);
+      backdrop-filter: blur(20px);
+      border: 1px solid rgba(255,255,255,0.07);
+      box-shadow: var(--glass-shadow);
+      transition: var(--t-smooth);
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+    .stat-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0; height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.12), transparent);
+    }
+    .stat-card:hover { transform: translateY(-5px); border-color: rgba(168,85,247,0.2); }
+    .stat-value {
+      font-size: 38px;
+      font-weight: 800;
+      letter-spacing: -2px;
+      background: var(--grad-aurora);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      display: block;
+      margin-bottom: 2px;
+    }
+    .stat-suffix {
+      font-size: 20px;
+      font-weight: 700;
+    }
+    .stat-label {
+      font-size: 12px;
+      color: var(--text-3);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+
+    /* ═══════════════════════════════
+       SCROLL INDICATOR
+    ═══════════════════════════════ */
+    .scroll-progress {
+      position: fixed;
+      top: 0;
+      left: 0;
+      height: 2px;
+      background: var(--grad-aurora);
+      z-index: 9999;
+      box-shadow: 0 0 10px rgba(168,85,247,0.6);
+      transition: width 0.1s linear;
+      width: 0%;
+    }
+
+    /* ═══════════════════════════════
+       GLOW UTILITIES
+    ═══════════════════════════════ */
+    .glow-text-iris {
+      color: var(--iris-light);
+      text-shadow: 0 0 20px rgba(168,85,247,0.5);
+    }
+    .glow-text-aqua {
+      color: var(--aqua-light);
+      text-shadow: 0 0 20px rgba(34,211,216,0.5);
+    }
+  </style>
+</head>
+<body>
+
+<!-- Scroll progress -->
+<div class="scroll-progress" id="scrollBar"></div>
+
+<!-- Nebula particle canvas -->
+<canvas id="nebulaCanvas" style="position:fixed;inset:0;z-index:-1;pointer-events:none;"></canvas>
+
+<!-- Film grain overlay -->
+<canvas id="grainCanvas" style="position:fixed;inset:0;z-index:0;pointer-events:none;opacity:0.045;"></canvas>
+
+<!-- Environment -->
+<div class="env" aria-hidden="true">
+  <div class="env-orb env-orb--1"></div>
+  <div class="env-orb env-orb--2"></div>
+  <div class="env-orb env-orb--3"></div>
+</div>
+<div class="stars" aria-hidden="true"></div>
+
+<!-- Custom Cursor -->
+<div class="cursor-trail" id="cursorTrail" aria-hidden="true"></div>
+<div class="cursor-main" id="cursorMain" aria-hidden="true"></div>
+
+<main class="page">
+
+  <!-- ═══ HERO ═══ -->
+  <section class="section">
+    <div class="hero">
+      <!-- Left: Glassmorphism -->
+      <div class="hero-glass tilt-card aura-card">
+        <div class="hero-tag" data-parallax="0.3">
+          <div class="hero-tag-dot"></div>
+          Bioluminescent Interface OS
+        </div>
+        <h1 class="hero-h1 scramble-target" data-parallax="0.5">
+          <span class="scramble-line" data-text="Cosmic">Cosmic</span>
+          <span class="scramble-line" data-text="Design">Design</span>
+          <span class="scramble-line" data-text="Language">Language</span>
+        </h1>
+        <p class="hero-sub" data-parallax="0.2">A state-of-the-art morphism-fused visual system combining glassmorphism, claymorphism, and neumorphism for deep-space interfaces.</p>
+        <div class="hero-actions" data-parallax="0.1">
+          <a href="mandala.html" class="btn btn-primary magnetic">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="9"/><path d="M12 3v18M3 12h18M5.6 5.6l12.8 12.8M18.4 5.6L5.6 18.4"/></svg>
+            Open Mandala Studio
+          </a>
+          <a href="cosmic-tides.html" class="btn btn-glass magnetic">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 12c2-3 4-3 6 0s4 3 6 0 4-3 6 0"/><path d="M2 18c2-3 4-3 6 0s4 3 6 0 4-3 6 0"/></svg>
+            Cosmic Tides
+          </a>
+          <a href="studio.html" class="btn btn-clay magnetic">Art Studio →</a>
+        </div>
+      </div>
+      <!-- Right: Claymorphism visual -->
+      <div class="hero-clay tilt-card" data-parallax="0.7">
+        <div class="hero-clay-inner"></div>
+        <div class="hero-clay-blur"></div>
+        <div class="hero-clay-content">
+          <div class="hero-clay-glyph">✦</div>
+          <div class="hero-clay-label">Bioluminescent Core</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══ MORPHISM STRIP ═══ -->
+  <section class="section">
+    <div class="section-header">
+      <div class="section-eyebrow">Design Philosophy</div>
+      <h2 class="section-title">Four Morphism Modes</h2>
+    </div>
+    <div class="morph-strip">
+      <div class="morph-card morph-glass tilt-card aura-card reveal" data-delay="0">
+        <div>
+          <div class="morph-icon morph-icon--aqua">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="4"/><path d="M3 9h18M9 21V9"/></svg>
+          </div>
+          <div class="morph-label">Style 01</div>
+          <div class="morph-name">Glassmorphism</div>
+          <div class="morph-desc">Translucent layering with backdrop blur and semi-transparency for depth.</div>
+        </div>
+      </div>
+      <div class="morph-card morph-clay tilt-card aura-card reveal" data-delay="0.1">
+        <div>
+          <div class="morph-icon morph-icon--iris">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="4"/></svg>
+          </div>
+          <div class="morph-label">Style 02</div>
+          <div class="morph-name">Claymorphism</div>
+          <div class="morph-desc">Fluffy 3D shapes with rounded corners, inner shadows and soft inflated look.</div>
+        </div>
+      </div>
+      <div class="morph-card morph-neu tilt-card aura-card reveal" data-delay="0.2">
+        <div>
+          <div class="morph-icon morph-icon--bloom">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><path d="M12 2C6.477 2 2 6.477 2 12s4.477 10 10 10 10-4.477 10-10S17.523 2 12 2z"/><path d="M12 8v8M8 12h8"/></svg>
+          </div>
+          <div class="morph-label">Style 03</div>
+          <div class="morph-name">Neumorphism</div>
+          <div class="morph-desc">Dual light and dark shadows that create extruded or inset soft-UI elements.</div>
+        </div>
+      </div>
+      <div class="morph-card morph-material tilt-card aura-card reveal" data-delay="0.3">
+        <div>
+          <div class="morph-icon morph-icon--ember">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+          </div>
+          <div class="morph-label">Style 04</div>
+          <div class="morph-name">Material Motion</div>
+          <div class="morph-desc">Unified depth through intentional motion, surface elevation and vibrant color.</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══ GALLERY ═══ -->
+  <section class="section">
+    <div class="section-header">
+      <div class="section-eyebrow">Visual Library</div>
+      <h2 class="section-title">Procedural Vibefields</h2>
+    </div>
+    <div class="chip-bar">
+      <span class="chip active">All</span>
+      <span class="chip">Procedural</span>
+      <span class="chip">Biolume</span>
+      <span class="chip">Cosmic</span>
+      <span class="chip">Organic</span>
+    </div>
+    <!-- Stats row -->
+    <div class="stats-row" style="margin-top:var(--s6);">
+      <div class="stat-card reveal" data-delay="0">
+        <span class="stat-value"><span data-count="48">0</span><span class="stat-suffix">+</span></span>
+        <div class="stat-label">Components</div>
+      </div>
+      <div class="stat-card reveal" data-delay="0.1">
+        <span class="stat-value"><span data-count="4">0</span><span class="stat-suffix">×</span></span>
+        <div class="stat-label">Morphism Modes</div>
+      </div>
+      <div class="stat-card reveal" data-delay="0.2">
+        <span class="stat-value"><span data-count="100">0</span><span class="stat-suffix">ms</span></span>
+        <div class="stat-label">Snap Reactivity</div>
+      </div>
+      <div class="stat-card reveal" data-delay="0.3">
+        <span class="stat-value"><span data-count="18">0</span><span class="stat-suffix">×</span></span>
+        <div class="stat-label">Live Effects</div>
+      </div>
+    </div>
+
+    <div class="gallery-grid">
+
+      <!-- 1. Abstract Flows — wide, rotating flow streams -->
+      <div class="gallery-tile gt--abstract-flows reveal-scale" data-delay="0" data-effect="abstract-flows">
+        <canvas class="tile-canvas"></canvas>
+        <div class="gallery-tile-overlay"><div class="gallery-tile-label">
+          <div class="gallery-tile-name">Abstract Flows</div>
+          <div class="gallery-tile-meta">Procedural · Biolume</div>
+        </div></div>
+      </div>
+
+      <!-- 2. Liquid Neon — dripping neon columns -->
+      <div class="gallery-tile gt--liquid-neon reveal-scale" data-delay="0.05" data-effect="liquid-neon">
+        <canvas class="tile-canvas"></canvas>
+        <div class="gallery-tile-overlay"><div class="gallery-tile-label">
+          <div class="gallery-tile-name">Liquid Neon</div>
+          <div class="gallery-tile-meta">Cosmic · Organic</div>
+        </div></div>
+      </div>
+
+      <!-- 3. Plasma Drift — pixel plasma field -->
+      <div class="gallery-tile gt--plasma-drift reveal-scale" data-delay="0.08" data-effect="plasma-drift">
+        <canvas class="tile-canvas"></canvas>
+        <div class="gallery-tile-overlay"><div class="gallery-tile-label">
+          <div class="gallery-tile-name">Plasma Drift</div>
+          <div class="gallery-tile-meta">Biolume · Cosmic</div>
+        </div></div>
+      </div>
+
+      <!-- 4. Mandala — tall, rotating sacred geometry -->
+      <div class="gallery-tile gt--mandala reveal-scale" data-delay="0.11" data-effect="mandala">
+        <canvas class="tile-canvas"></canvas>
+        <div class="gallery-tile-overlay"><div class="gallery-tile-label">
+          <div class="gallery-tile-name">Mandala</div>
+          <div class="gallery-tile-meta">Sacred · Geometry</div>
+        </div></div>
+      </div>
+
+      <!-- 5. Cosmic Tide — layered wave bands -->
+      <div class="gallery-tile gt--cosmic-tide reveal-scale" data-delay="0.14" data-effect="cosmic-tide">
+        <canvas class="tile-canvas"></canvas>
+        <div class="gallery-tile-overlay"><div class="gallery-tile-label">
+          <div class="gallery-tile-name">Cosmic Tide</div>
+          <div class="gallery-tile-meta">Cosmic · Wave</div>
+        </div></div>
+      </div>
+
+      <!-- 6. Floral Glow — blooming flower mandala -->
+      <div class="gallery-tile gt--floral-glow reveal-scale" data-delay="0.17" data-effect="floral-glow">
+        <canvas class="tile-canvas"></canvas>
+        <div class="gallery-tile-overlay"><div class="gallery-tile-label">
+          <div class="gallery-tile-name">Floral Glow</div>
+          <div class="gallery-tile-meta">Organic · Biolume</div>
+        </div></div>
+      </div>
+
+      <!-- 7. Deep Space — galaxy starfield -->
+      <div class="gallery-tile gt--deep-space reveal-scale" data-delay="0.20" data-effect="deep-space">
+        <canvas class="tile-canvas"></canvas>
+        <div class="gallery-tile-overlay"><div class="gallery-tile-label">
+          <div class="gallery-tile-name">Deep Space</div>
+          <div class="gallery-tile-meta">Cosmic · Stars</div>
+        </div></div>
+      </div>
+
+      <!-- 8. Liquid Mercury — reflective blobs -->
+      <div class="gallery-tile gt--liquid-mercury reveal-scale" data-delay="0.23" data-effect="liquid-mercury">
+        <canvas class="tile-canvas"></canvas>
+        <div class="gallery-tile-overlay"><div class="gallery-tile-label">
+          <div class="gallery-tile-name">Liquid Mercury</div>
+          <div class="gallery-tile-meta">Metal · Fluid</div>
+        </div></div>
+      </div>
+
+      <!-- 9. Quilling — tall, paper coil spirals -->
+      <div class="gallery-tile gt--quilling reveal-scale" data-delay="0.26" data-effect="quilling">
+        <canvas class="tile-canvas"></canvas>
+        <div class="gallery-tile-overlay"><div class="gallery-tile-label">
+          <div class="gallery-tile-name">Quilling</div>
+          <div class="gallery-tile-meta">Paper · Craft</div>
+        </div></div>
+      </div>
+
+      <!-- 10. Tectonic Shift — cracked plates -->
+      <div class="gallery-tile gt--tectonic-shift reveal-scale" data-delay="0.29" data-effect="tectonic-shift">
+        <canvas class="tile-canvas"></canvas>
+        <div class="gallery-tile-overlay"><div class="gallery-tile-label">
+          <div class="gallery-tile-name">Tectonic Shift</div>
+          <div class="gallery-tile-meta">Geo · Fracture</div>
+        </div></div>
+      </div>
+
+      <!-- 11. Ripple — expanding water rings -->
+      <div class="gallery-tile gt--ripple reveal-scale" data-delay="0.32" data-effect="ripple-field">
+        <canvas class="tile-canvas"></canvas>
+        <div class="gallery-tile-overlay"><div class="gallery-tile-label">
+          <div class="gallery-tile-name">Ripple</div>
+          <div class="gallery-tile-meta">Water · Caustic</div>
+        </div></div>
+      </div>
+
+      <!-- 12. Bubble — iridescent floating orbs -->
+      <div class="gallery-tile gt--bubble reveal-scale" data-delay="0.35" data-effect="bubble">
+        <canvas class="tile-canvas"></canvas>
+        <div class="gallery-tile-overlay"><div class="gallery-tile-label">
+          <div class="gallery-tile-name">Bubble</div>
+          <div class="gallery-tile-meta">Surface · Soap</div>
+        </div></div>
+      </div>
+
+      <!-- 13. Crystallize — Voronoi crystal lattice -->
+      <div class="gallery-tile gt--crystallize reveal-scale" data-delay="0.38" data-effect="crystallize">
+        <canvas class="tile-canvas"></canvas>
+        <div class="gallery-tile-overlay"><div class="gallery-tile-label">
+          <div class="gallery-tile-name">Crystallize</div>
+          <div class="gallery-tile-meta">Mineral · Lattice</div>
+        </div></div>
+      </div>
+
+      <!-- 14. Liquify — morphing blob shapes -->
+      <div class="gallery-tile gt--liquify reveal-scale" data-delay="0.41" data-effect="liquify">
+        <canvas class="tile-canvas"></canvas>
+        <div class="gallery-tile-overlay"><div class="gallery-tile-label">
+          <div class="gallery-tile-name">Liquify</div>
+          <div class="gallery-tile-meta">Morph · Fluid</div>
+        </div></div>
+      </div>
+
+      <!-- 15. Paper Layer — stacked offset sheets -->
+      <div class="gallery-tile gt--paper-layer reveal-scale" data-delay="0.44" data-effect="paper-layer">
+        <canvas class="tile-canvas"></canvas>
+        <div class="gallery-tile-overlay"><div class="gallery-tile-label">
+          <div class="gallery-tile-name">Paper Layer</div>
+          <div class="gallery-tile-meta">Craft · Depth</div>
+        </div></div>
+      </div>
+
+      <!-- 16. Coloring Book Blueprint — wide, line art that fills -->
+      <div class="gallery-tile gt--coloring-book reveal-scale" data-delay="0.47" data-effect="coloring-book">
+        <canvas class="tile-canvas"></canvas>
+        <div class="gallery-tile-overlay"><div class="gallery-tile-label">
+          <div class="gallery-tile-name">Coloring Book</div>
+          <div class="gallery-tile-meta">Blueprint · Ink</div>
+        </div></div>
+      </div>
+
+      <!-- 17. Acid Pour — layered pigment blobs + bubbles -->
+      <div class="gallery-tile gt--acid-pour reveal-scale" data-delay="0.50" data-effect="acid-pour">
+        <canvas class="tile-canvas"></canvas>
+        <div class="gallery-tile-overlay"><div class="gallery-tile-label">
+          <div class="gallery-tile-name">Acid Pour</div>
+          <div class="gallery-tile-meta">Paint · Fluid</div>
+        </div></div>
+      </div>
+
+      <!-- 18. Vortex Nebula — wide, spiral galaxy pull -->
+      <div class="gallery-tile gt--vortex reveal-scale" data-delay="0.53" data-effect="vortex">
+        <canvas class="tile-canvas"></canvas>
+        <div class="gallery-tile-overlay"><div class="gallery-tile-label">
+          <div class="gallery-tile-name">Vortex Nebula</div>
+          <div class="gallery-tile-meta">Galaxy · Spiral</div>
+        </div></div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ═══ COMPONENTS ROW ═══ -->
+  <section class="section">
+    <div class="section-header">
+      <div class="section-eyebrow">Interface Components</div>
+      <h2 class="section-title">System Primitives</h2>
+    </div>
+    <div class="components-row">
+
+      <!-- Player Card -->
+      <div class="player-card tilt-card aura-card reveal" data-delay="0">
+        <p class="panel-title">Audio Visualizer</p>
+        <div class="player-art">
+          <div class="player-art-inner"></div>
+        </div>
+        <div class="player-title">Nebula Drift — Vol. 3</div>
+        <div class="player-artist">ChromaFlora Audio Lab</div>
+        <div class="waveform">
+          <div class="waveform-bar" style="height:60%;animation-delay:0s"></div>
+          <div class="waveform-bar" style="height:90%;animation-delay:.1s"></div>
+          <div class="waveform-bar" style="height:50%;animation-delay:.2s"></div>
+          <div class="waveform-bar" style="height:80%;animation-delay:.3s"></div>
+          <div class="waveform-bar" style="height:100%;animation-delay:.05s"></div>
+          <div class="waveform-bar" style="height:65%;animation-delay:.25s"></div>
+          <div class="waveform-bar" style="height:40%;animation-delay:.15s"></div>
+          <div class="waveform-bar" style="height:75%;animation-delay:.35s"></div>
+          <div class="waveform-bar" style="height:55%;animation-delay:.08s"></div>
+          <div class="waveform-bar" style="height:90%;animation-delay:.4s"></div>
+          <div class="waveform-bar" style="height:70%;animation-delay:.18s"></div>
+          <div class="waveform-bar" style="height:45%;animation-delay:.28s"></div>
+        </div>
+        <div class="prog-track"><div class="prog-fill"></div></div>
+        <div class="controls">
+          <button class="ctrl-btn">⏮</button>
+          <button class="ctrl-btn ctrl-play">▶</button>
+          <button class="ctrl-btn">⏭</button>
+        </div>
+      </div>
+
+      <!-- Toggles + Sliders (Neumorphism) -->
+      <div class="toggles-panel" style="position:relative;">
+        <p class="panel-title">System Controls</p>
+        <div class="toggle-row">
+          <div class="toggle-info">
+            <div class="toggle-name">Glow Emission</div>
+            <div class="toggle-sub">Bioluminescent aura layers</div>
+          </div>
+          <div class="toggle-switch on" onclick="this.classList.toggle('on')"></div>
+        </div>
+        <div class="toggle-row">
+          <div class="toggle-info">
+            <div class="toggle-name">Particle Field</div>
+            <div class="toggle-sub">Ambient star system</div>
+          </div>
+          <div class="toggle-switch on" onclick="this.classList.toggle('on')"></div>
+        </div>
+        <div class="toggle-row">
+          <div class="toggle-info">
+            <div class="toggle-name">Aurora Shift</div>
+            <div class="toggle-sub">Live hue animation</div>
+          </div>
+          <div class="toggle-switch" onclick="this.classList.toggle('on')"></div>
+        </div>
+        <div class="toggle-row">
+          <div class="toggle-info">
+            <div class="toggle-name">Morphic Cursor</div>
+            <div class="toggle-sub">Warping trail effect</div>
+          </div>
+          <div class="toggle-switch on" onclick="this.classList.toggle('on')"></div>
+        </div>
+
+        <div class="slider-group">
+          <div class="slider-label"><span>Glow Intensity</span><span class="glow-text-aqua">78%</span></div>
+          <div class="slider-track"><div class="slider-fill-bar slider-fill-bar--aqua" style="width:78%"></div></div>
+          <div class="slider-label"><span>Bloom Radius</span><span class="glow-text-iris">52%</span></div>
+          <div class="slider-track"><div class="slider-fill-bar slider-fill-bar--iris" style="width:52%"></div></div>
+          <div class="slider-label"><span>Chromatic Shift</span><span style="color:var(--bloom-light)">33%</span></div>
+          <div class="slider-track"><div class="slider-fill-bar slider-fill-bar--bloom" style="width:33%"></div></div>
+        </div>
+      </div>
+
+      <!-- Color Tokens (Glassmorphism) -->
+      <div class="tokens-panel">
+        <p class="panel-title">Color Tokens</p>
+        <div class="token-grid">
+          <div class="token-swatch ts-1" title="--iris"></div>
+          <div class="token-swatch ts-2" title="--aqua"></div>
+          <div class="token-swatch ts-3" title="--bloom"></div>
+          <div class="token-swatch ts-4" title="--ember"></div>
+          <div class="token-swatch ts-5" title="--iris-light"></div>
+          <div class="token-swatch ts-6" title="--aqua-light"></div>
+          <div class="token-swatch ts-7" title="--bloom-light"></div>
+          <div class="token-swatch ts-8" title="--viridian"></div>
+        </div>
+        <div class="token-rows">
+          <div class="token-row">
+            <div class="token-dot td-iris"></div>
+            <div class="token-info">
+              <div class="token-name">--iris</div>
+              <div class="token-val">#a855f7</div>
+            </div>
+            <span class="token-chip">Primary</span>
+          </div>
+          <div class="token-row">
+            <div class="token-dot td-aqua"></div>
+            <div class="token-info">
+              <div class="token-name">--aqua</div>
+              <div class="token-val">#22d3d8</div>
+            </div>
+            <span class="token-chip">CTA</span>
+          </div>
+          <div class="token-row">
+            <div class="token-dot td-bloom"></div>
+            <div class="token-info">
+              <div class="token-name">--bloom</div>
+              <div class="token-val">#ec4899</div>
+            </div>
+            <span class="token-chip">Accent</span>
+          </div>
+          <div class="token-row">
+            <div class="token-dot td-ember"></div>
+            <div class="token-info">
+              <div class="token-name">--ember</div>
+              <div class="token-val">#f97316</div>
+            </div>
+            <span class="token-chip">Warn</span>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+</main>
+
+<!-- Footer -->
+<footer class="footer-bar">
+  <div class="footer-status">
+    <div class="status-dot"></div>
+    <span>System Nominal — ChromaFlora v3.0</span>
+  </div>
+  <div class="footer-links">
+    <a href="index.html" class="footer-link">System</a>
+    <a href="swirl-generator.html" class="footer-link">Generator</a>
+    <a href="#" class="footer-link">GitHub</a>
+    <a href="#" class="footer-link">License</a>
+  </div>
+  <span>2026 ChromaFlora Design OS</span>
+</footer>
+
+<script>
+  /* ── Cursor ── */
+  const trail = document.getElementById('cursorTrail');
+  const dot   = document.getElementById('cursorMain');
+  let mx = -999, my = -999;
+
+  document.addEventListener('mousemove', e => {
+    mx = e.clientX; my = e.clientY;
+    dot.style.left   = mx + 'px';
+    dot.style.top    = my + 'px';
+    dot.style.opacity = '1';
+  });
+  document.addEventListener('mouseleave', () => {
+    dot.style.opacity = '0';
+    trail.style.opacity = '0';
+  });
+  document.addEventListener('mouseenter', () => {
+    trail.style.opacity = '1';
+  });
+
+  let tx = mx, ty = my;
+  function animateTrail() {
+    tx += (mx - tx) * 0.1;
+    ty += (my - ty) * 0.1;
+    trail.style.left = tx + 'px';
+    trail.style.top  = ty + 'px';
+    requestAnimationFrame(animateTrail);
+  }
+  animateTrail();
+
+  /* Cursor grow on interactables */
+  document.querySelectorAll('a,button,.gallery-tile,.token-swatch,.toggle-switch,.morph-card').forEach(el => {
+    el.addEventListener('mouseenter', () => {
+      dot.style.width  = '24px';
+      dot.style.height = '24px';
+      trail.style.width  = '220px';
+      trail.style.height = '220px';
+    });
+    el.addEventListener('mouseleave', () => {
+      dot.style.width  = '12px';
+      dot.style.height = '12px';
+      trail.style.width  = '180px';
+      trail.style.height = '180px';
+    });
+  });
+
+  /* ── Scroll Progress ── */
+  const scrollBar = document.getElementById('scrollBar');
+  window.addEventListener('scroll', () => {
+    const pct = (window.scrollY / (document.body.scrollHeight - window.innerHeight)) * 100;
+    scrollBar.style.width = pct + '%';
+  });
+
+  /* ── Chip filter (visual only) ── */
+  document.querySelectorAll('.chip').forEach(chip => {
+    chip.addEventListener('click', () => {
+      document.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
+      chip.classList.add('active');
+    });
+  });
+
+  /* ── Waveform random heights ── */
+  document.querySelectorAll('.waveform-bar').forEach((bar, i) => {
+    bar.style.animationDelay = (i * 0.07) + 's';
+  });
+</script>
+<script src="drawer.js"></script>
+<script src="effects.js" defer></script>
+<script>
+/* ══════════════════════════════════════════════
+   ChromaFlora — Global Interaction Initialization
+══════════════════════════════════════════════ */
+document.addEventListener('DOMContentLoaded', function() {
+  const CF = window.CF;
+  if (!CF) return;
+
+  /* ── Left Navigation Drawer ── */
+  const navDrawer = new CF.Drawer({ id: 'nav-drawer', side: 'left', width: '320px' });
+  navDrawer.setContent(`
+    <div class="nav-drawer-header">
+      <div class="nav-drawer-logo">ChromaFlora <span style="font-size:12px;opacity:.4;font-weight:400">v5.0</span></div>
+      <button class="nav-drawer-close" onclick="document.getElementById('nav-drawer').closest('.cf-drawer')._drawerInst?.close()">✕</button>
+    </div>
+    <div class="nav-drawer-links">
+      <a href="index.html" class="nav-drawer-link">
+        <div class="dicon">🌌</div>
+        <div><div class="dtitle">System</div><div class="dsub">18-tile biolume gallery</div></div>
+      </a>
+      <a href="projects.html" class="nav-drawer-link">
+        <div class="dicon">◆</div>
+        <div><div class="dtitle">Projects</div><div class="dsub">Void drift case studies</div></div>
+      </a>
+      <div class="nav-drawer-sep"></div>
+      <a href="studio.html" class="nav-drawer-link">
+        <div class="dicon">🎨</div>
+        <div><div class="dtitle">Art Studio</div><div class="dsub">Canvas · paint pour · sacred geometry · WebGL particles</div></div>
+      </a>
+      <a href="mandala.html" class="nav-drawer-link">
+        <div class="dicon">✦</div>
+        <div><div class="dtitle">Mandala Studio</div><div class="dsub">Polar math · spirograph · Lissajous · Web Worker</div></div>
+      </a>
+      <a href="sonic-waves.html" class="nav-drawer-link">
+        <div class="dicon">🎵</div>
+        <div><div class="dtitle">Sonic Waves</div><div class="dsub">Oscilloscope · harmonic synth · spectrum analyzer</div></div>
+      </a>
+      <a href="band.html" class="nav-drawer-link">
+        <div class="dicon">🎸</div>
+        <div><div class="dtitle">Band Studio</div><div class="dsub">8-track sequencer · Euclidean rhythm · chaos patterns</div></div>
+      </a>
+      <a href="ai-studio.html" class="nav-drawer-link">
+        <div class="dicon">🤗</div>
+        <div><div class="dtitle">AI Studio</div><div class="dsub">Pollinations image gen · reverse engineering</div></div>
+      </a>
+      <a href="discovery.html" class="nav-drawer-link">
+        <div class="dicon">🔍</div>
+        <div><div class="dtitle">Discover</div><div class="dsub">24 inquiry cards · living preference model · mystery</div></div>
+      </a>
+      <a href="asmr.html" class="nav-drawer-link">
+        <div class="dicon">🌟</div>
+        <div><div class="dtitle">ASMR</div><div class="dsub">Binaural beats · Solfeggio presets · sleep timer</div></div>
+      </a>
+      <a href="playlist.html" class="nav-drawer-link">
+        <div class="dicon">💽</div>
+        <div><div class="dtitle">Playlist</div><div class="dsub">Circle of Fifths · harmonic scale browser · synesthesia</div></div>
+      </a>
+      <div class="nav-drawer-sep"></div>
+      <a href="player.html" class="nav-drawer-link">
+        <div class="dicon">🎧</div>
+        <div><div class="dtitle">ChromaSynth v2</div><div class="dsub">Harmonic partials · 9 scales · Spatial audio</div></div>
+      </a>
+      <a href="plotter.html" class="nav-drawer-link">
+        <div class="dicon">⬡</div>
+        <div><div class="dtitle">Plotter Studio</div><div class="dsub">SVG · GCode · AxiDraw · TurtleToy</div></div>
+      </a>
+      <a href="swirl-generator.html" class="nav-drawer-link">
+        <div class="dicon">🌀</div>
+        <div><div class="dtitle">Swirl Generator</div><div class="dsub">Procedural art engine</div></div>
+      </a>
+      <a href="beats-boxes.html" class="nav-drawer-link">
+        <div class="dicon">🥁</div>
+        <div><div class="dtitle">Beats &amp; Boxes</div><div class="dsub">Art feeds the city · Co. La'Bright</div></div>
+      </a>
+      <a href="hidden-order.html" class="nav-drawer-link">
+        <div class="dicon">✦</div>
+        <div><div class="dtitle">Hidden Order</div><div class="dsub">10 frameworks · conscious living workbook</div></div>
+      </a>
+      <a href="embed.html" class="nav-drawer-link">
+        <div class="dicon">◆</div>
+        <div><div class="dtitle">Embed Generator</div><div class="dsub">Iframe builder for mandala / waves / sequencer</div></div>
+      </a>
+      <div class="nav-drawer-sep"></div>
+      <a href="gallery.html" class="nav-drawer-link">
+        <div class="dicon">🖼</div>
+        <div><div class="dtitle">Gallery</div><div class="dsub">Community art · generative works</div></div>
+      </a>
+      <a href="challenges.html" class="nav-drawer-link">
+        <div class="dicon">🏆</div>
+        <div><div class="dtitle">Challenges</div><div class="dsub">Weekly creative prompts · leaderboard</div></div>
+      </a>
+      <a href="marketplace.html" class="nav-drawer-link">
+        <div class="dicon">🛒</div>
+        <div><div class="dtitle">Marketplace</div><div class="dsub">Commission · NFT early access</div></div>
+      </a>
+      <a href="blog.html" class="nav-drawer-link">
+        <div class="dicon">✍</div>
+        <div><div class="dtitle">Blog</div><div class="dsub">Design thinking · generative art · creative code</div></div>
+      </a>
+      <a href="about.html" class="nav-drawer-link">
+        <div class="dicon">🌟</div>
+        <div><div class="dtitle">About</div><div class="dsub">Jennipher Troup · @halcyonminx</div></div>
+      </a>
+      <a href="profile.html" class="nav-drawer-link">
+        <div class="dicon">👤</div>
+        <div><div class="dtitle">Creator Profile</div><div class="dsub">Portfolio · projects · social links</div></div>
+      </a>
+    </div>
+    <div class="nav-drawer-sep"></div>
+    <div style="padding:16px 28px">
+      <div style="font-size:10px;color:rgba(255,255,255,0.25);font-family:'JetBrains Mono',monospace">ChromaFlora Design System · MIT License<br>Built with pure HTML/CSS/JS · No images</div>
+    </div>
+  `);
+  // Patch close button
+  setTimeout(() => {
+    const closeBtn = navDrawer.panel.querySelector('.nav-drawer-close');
+    if (closeBtn) closeBtn.onclick = () => navDrawer.close();
+  }, 100);
+
+  document.getElementById('btnNavDrawer')?.addEventListener('click', () => navDrawer.toggle());
+
+  /* ── Right Settings Drawer ── */
+  const settingsDrawer = new CF.Drawer({ id: 'settings-drawer', side: 'right', width: '300px' });
+  settingsDrawer.setContent(`
+    <div style="padding:28px">
+      <div style="font-size:16px;font-weight:800;margin-bottom:24px">Settings</div>
+
+      <div style="margin-bottom:24px">
+        <div style="font-size:10px;text-transform:uppercase;letter-spacing:.1em;color:rgba(255,255,255,.35);margin-bottom:12px">Theme</div>
+        <div style="display:flex;gap:10px;flex-wrap:wrap">
+          ${['Cosmic Dark','Biolume','Neon Pink','Deep Ocean','Aurora'].map((t,i)=>`
+            <div style="padding:8px 14px;border-radius:10px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.08);font-size:12px;cursor:pointer;transition:.1s" onmouseenter="this.style.borderColor='rgba(168,85,247,.4)'" onmouseleave="this.style.borderColor='rgba(255,255,255,.08)'">${t}</div>
+          `).join('')}
+        </div>
+      </div>
+
+      <div style="margin-bottom:24px">
+        <div style="font-size:10px;text-transform:uppercase;letter-spacing:.1em;color:rgba(255,255,255,.35);margin-bottom:12px">Effects</div>
+        ${[['Particle Field','on'],['Glow Trails','on'],['Grain Overlay','off'],['Scanlines','off'],['Chromatic Aberration','on']].map(([l,d])=>`
+          <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid rgba(255,255,255,.06);cursor:pointer" onclick="const t=this.querySelector('.mini-toggle');t.classList.toggle('on')">
+            <span style="font-size:13px;color:rgba(255,255,255,.75)">${l}</span>
+            <div class="mini-toggle ${d==='on'?'on':''}" style="width:38px;height:20px;border-radius:10px;background:${d==='on'?'linear-gradient(135deg,#a855f7,#ec4899)':'rgba(255,255,255,.1)'};position:relative;border:1px solid rgba(255,255,255,.1);transition:.2s;flex-shrink:0"><div style="position:absolute;top:2px;left:${d==='on'?'18px':'2px'};width:14px;height:14px;border-radius:50%;background:white;transition:.2s cubic-bezier(.34,1.56,.64,1)"></div></div>
+          </div>
+        `).join('')}
+      </div>
+
+      <div style="margin-bottom:24px">
+        <div style="font-size:10px;text-transform:uppercase;letter-spacing:.1em;color:rgba(255,255,255,.35);margin-bottom:12px">Accent Color</div>
+        <div style="display:flex;gap:8px">
+          ${['#a855f7','#ec4899','#22d3ee','#10b981','#f97316','#6366f1'].map(c=>`<div style="width:28px;height:28px;border-radius:50%;background:${c};cursor:pointer;transition:.15s;border:2px solid transparent" onmouseenter="this.style.transform='scale(1.2)'" onmouseleave="this.style.transform=''"></div>`).join('')}
+        </div>
+      </div>
+
+      <div style="font-size:10px;color:rgba(255,255,255,.25);font-family:'JetBrains Mono',monospace;margin-top:32px">ChromaFlora v3.0 · Build 2025</div>
+    </div>
+  `);
+  document.getElementById('btnSettingsDrawer')?.addEventListener('click', () => settingsDrawer.toggle());
+
+  /* ── Interactive Module (Modal) ── */
+  const exportModal = new CF.Modal({ id: 'export-modal', size: 'md' });
+  exportModal.setContent(`
+    <div style="text-align:center;margin-bottom:24px">
+      <div style="font-size:32px;margin-bottom:8px">✦</div>
+      <div style="font-size:22px;font-weight:800;margin-bottom:6px">Export Design Kit</div>
+      <div style="font-size:14px;color:rgba(255,255,255,.5)">Download ChromaFlora assets and tokens</div>
+    </div>
+    <div style="display:grid;gap:10px;margin-bottom:24px">
+      ${[['Design Tokens CSS','All CSS custom properties','tokens.css'],['Component Library','HTML + CSS components','components.html'],['Effect Presets','Canvas effect configs','effects.json'],['Color Palette','Figma-ready swatches','palette.json']].map(([t,d,f])=>`
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:14px 16px;border-radius:12px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.07);cursor:pointer;transition:.1s" onmouseenter="this.style.borderColor='rgba(168,85,247,.25)'" onmouseleave="this.style.borderColor='rgba(255,255,255,.07)'">
+          <div>
+            <div style="font-size:14px;font-weight:600">${t}</div>
+            <div style="font-size:12px;color:rgba(255,255,255,.4)">${d}</div>
+          </div>
+          <div style="font-size:12px;font-family:'JetBrains Mono',monospace;color:rgba(168,85,247,.8);background:rgba(168,85,247,.1);padding:4px 10px;border-radius:6px">${f}</div>
+        </div>
+      `).join('')}
+    </div>
+    <button style="width:100%;padding:13px;border-radius:12px;border:none;cursor:pointer;background:linear-gradient(135deg,#a855f7,#ec4899);color:white;font-size:15px;font-weight:700;box-shadow:0 4px 18px rgba(168,85,247,.35);transition:.1s" onclick="this.textContent='✓ Copied to clipboard!'">Download All Assets</button>
+  `);
+  document.getElementById('ddOpenModal')?.addEventListener('click', () => exportModal.open());
+  document.getElementById('btnExport')?.removeAttribute('onclick');
+  document.getElementById('btnExport')?.addEventListener('click', () => exportModal.open());
+
+  /* ── Settings from dropdown ── */
+  document.getElementById('ddOpenSettings')?.addEventListener('click', () => settingsDrawer.open());
+
+  /* ── Floating Widget ── */
+  new CF.FloatWidget([
+    { label: 'Navigation', icon: '☰', onClick: () => navDrawer.open() },
+    { label: 'Art Studio', icon: '🎨', onClick: () => window.location.href = 'studio.html' },
+    { label: 'Mandala', icon: '☯', onClick: () => window.location.href = 'mandala.html' },
+    { label: 'Cosmic Tides', icon: '〰', onClick: () => window.location.href = 'cosmic-tides.html' },
+    { label: 'ChromaSynth', icon: '🎵', onClick: () => window.location.href = 'player.html' },
+    { label: 'Settings', icon: '⚙', onClick: () => settingsDrawer.open() },
+    { label: 'Export Kit', icon: '✦', onClick: () => exportModal.open() },
+  ]);
+
+  /* ── Gallery tile click navigation ── */
+  (function bindTileNav() {
+    // Core modules route to their full studio page; other effects → project detail page
+    const effectToModule = {
+      'mandala':      'mandala.html',
+      'cosmic-tide':  'cosmic-tides.html',
+      'abstract-flows':'studio.html',
+    };
+
+    document.querySelectorAll('.gallery-tile[data-effect]').forEach(tile => {
+      tile.style.cursor = 'pointer';
+      const effect = tile.dataset.effect;
+      const isModule = !!effectToModule[effect];
+      const label = tile.querySelector('.gallery-tile-label');
+      if (label) {
+        const chip = document.createElement('div');
+        chip.style.cssText = 'display:inline-flex;align-items:center;gap:4px;margin-top:6px;padding:4px 10px;border-radius:7px;font-size:10px;font-weight:800;background:rgba(168,85,247,.25);border:1px solid rgba(168,85,247,.4);color:rgba(200,150,255,.9);opacity:0;transition:opacity .2s;letter-spacing:.04em';
+        chip.textContent = isModule ? 'Open Studio →' : 'View Project →';
+        if (isModule) {
+          chip.style.background = 'rgba(34,211,216,.25)';
+          chip.style.borderColor = 'rgba(34,211,216,.4)';
+          chip.style.color = 'rgba(180,235,240,.95)';
+        }
+        label.appendChild(chip);
+        tile.addEventListener('mouseenter', () => chip.style.opacity = '1');
+        tile.addEventListener('mouseleave', () => chip.style.opacity = '0');
+      }
+
+      tile.addEventListener('click', function(e) {
+        if (e.target.tagName === 'CANVAS' && e.target.style.pointerEvents === 'none') return;
+        const fx = this.dataset.effect;
+        if (effectToModule[fx]) {
+          window.location.href = effectToModule[fx];
+        } else {
+          window.location.href = `project.html?id=${fx}`;
+        }
+      });
+    });
+  })();
+});
+</script>
+<script src="drawer.js"></script>
+<script src="player-bar.js"></script>
+</body>
+</html>
